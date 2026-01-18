@@ -1,0 +1,3274 @@
+
+//App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Signup from "./src/Screens1/Signup";
+import Login from "./src/Screens1/Login";
+import SplashScreen from "./src/Screens1/SplashScreen";
+import RoleSelectionScreen from "./src/Screens1/RoleSelectionScreen";
+import VolunteerRegistration from "./src/Screens1/VolunteerRegistration";
+import ScribeHomeScreen from "./src/Screens1/ScribeHomeScreen";
+import SearchScribeScreen from "./src/Screens1/SearchScribeScreen";
+import StudyMaterialScreen from "./src/Screens1/StudyMaterialScreen";
+import UploadNotesScreen from "./src/Screens1/UploadNotesScreen";
+import ViewUploadsScreen from "./src/Screens1/ViewUploadsScreen";
+import Settings from "./src/Screens1/Settings";
+import ChatScreen from "./src/Screens1/ChatScreen";
+
+import { UploadedNotesProvider } from './src/Screens1/UploadedNotesContext';
+
+const Stack = createNativeStackNavigator();
+
+export default function App() {
+  return (
+    <UploadedNotesProvider>
+      <NavigationContainer>
+
+        <Stack.Navigator initialRouteName="SplashScreen">
+          <Stack.Screen
+            name="SplashScreen"
+            component={SplashScreen}
+            options={{ headerShown: false }} />
+
+          <Stack.Screen
+            name="Signup"
+            component={Signup}
+            options={{ headerShown: false }} />
+
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="RoleSelectionScreen"
+            component={RoleSelectionScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="VolunteerRegistration"
+            component={VolunteerRegistration}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ScribeHomeScreen"
+            component={ScribeHomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SearchScribeScreen"
+            component={SearchScribeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StudyMaterialScreen"
+            component={StudyMaterialScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="UploadNotesScreen"
+            component={UploadNotesScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ViewUploadsScreen"
+            component={ViewUploadsScreen}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="Settings"
+            component={Settings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Chat"
+            component={ChatScreen}
+            options={{ headerShown: false }}
+          />
+          
+
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UploadedNotesProvider>
+  );
+}  
+
+
+
+//Signup.jsx
+import React, { useState } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert,
+  ScrollView, KeyboardAvoidingView, Platform, StatusBar,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const Signup = () => {
+  const navigation = useNavigation();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleRegister = async () => {
+    if (!name || !email || !mobile || !password || !confirmPassword) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    await AsyncStorage.setItem('isLoggedIn', 'true');
+
+    // ✅ Save user information
+    await AsyncStorage.setItem(
+      "userData",
+      JSON.stringify({ name, email, mobile })
+    );
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'ScribeHomeScreen' }],
+    });
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#4e1372ff' }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Icon name="arrow-back" size={26} color="black" />
+          </TouchableOpacity>
+
+          <Text style={styles.title}>Registration</Text>
+
+          <View style={styles.innerContainer}>
+            <TextInput style={styles.input} placeholder="Full Name" value={name} placeholderTextColor="#666" onChangeText={setName} />
+            <TextInput style={styles.input} placeholder="Email" value={email} placeholderTextColor="#666" onChangeText={setEmail} />
+            <TextInput style={styles.input} placeholder="Mobile" value={mobile} placeholderTextColor="#666" onChangeText={setMobile} />
+
+            <View style={{ width: '100%' }}>
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#666"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
+                <Icon name={showPassword ? 'eye' : 'eye-off'} size={24} color="#4e1372ff" />
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              placeholderTextColor="#666"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+
+            <TouchableOpacity style={styles.button} onPress={handleRegister}>
+              <Text style={styles.buttonText}>Register</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ marginTop: 20 }}>
+              <Text style={{ textAlign: 'center' }}>
+                Already have an account? <Text style={{ textDecorationLine: 'underline', fontWeight: 'bold' }}>Login</Text>
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+        </KeyboardAvoidingView>
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, alignItems: 'center', padding: 20, paddingTop:150 },
+  title: { fontSize: 28, color: '#e2b9d4ff', fontWeight: 'bold', marginBottom: 20 },
+  innerContainer: { width: '103%', backgroundColor: '#e2b9d4ff', borderRadius: 12, padding: 20 },
+  input: { width: '100%', height: 55, backgroundColor: '#fff', paddingHorizontal: 15, borderRadius: 8, marginBottom: 15,  color: '#000' },
+  button: { width: '100%', height: 50, backgroundColor: '#4e1372ff', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 18 },
+  eyeIcon: { position: 'absolute', right: 15, top: 15 },
+  backButton: { position: 'absolute', top: 50, left: 20 },
+});
+
+export default Signup;
+
+
+
+//Login.jsx
+import React, { useState } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Alert, KeyboardAvoidingView, Platform, ScrollView, StatusBar
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const Login = () => {
+  const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill all fields");
+      return;
+    }
+
+    await AsyncStorage.setItem('isLoggedIn', 'true');
+
+    // ✅ Save minimal user data
+    await AsyncStorage.setItem(
+      "userData",
+      JSON.stringify({
+        name: email.split("@")[0], // TEMP NAME
+        email,
+      })
+    );
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'ScribeHomeScreen' }],
+    });
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#4e1372ff' }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate("SplashScreen")}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={26} color="black" />
+          </TouchableOpacity>
+
+          <Text style={styles.title}>Login</Text>
+
+          <View style={styles.innerContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#666"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+            />
+
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Password"
+                placeholderTextColor="#666"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={24} color="#4e1372ff" />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, alignItems: 'center', padding: 20, paddingTop:260  },
+  innerContainer: { width: '100%', backgroundColor: '#e2b9d4ff', padding: 20, borderRadius: 12 },
+  title: { fontSize: 28, color: '#e2b9d4ff', fontWeight: 'bold', marginBottom: 30 },
+  input: { width: '100%', height: 60, backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 15 },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center', width: '100%' },
+  eyeIcon: { position: 'absolute', right: 15 },
+  button: { width: '100%', height: 50, backgroundColor: '#4e1372ff', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 18 },
+  backButton: { position: 'absolute', top: 50, left: 20 },
+});
+
+export default Login;
+
+
+
+//SplashScreen.jsx
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Text, Animated, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const SplashScreen = ({ navigation }) => {
+  const logoScale = useRef(new Animated.Value(0)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+
+    // ---- Animation ----
+    Animated.parallel([
+      Animated.timing(logoScale, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // ---- Login Check ----
+    const checkLoginStatus = async () => {
+      try {
+        const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
+        console.log("LOGIN STATUS:", isLoggedIn);
+
+        setTimeout(() => {
+          
+          if (isLoggedIn === 'true') {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ScribeHomeScreen' }],
+            });
+          } else {
+            // ❌ DO NOT navigate anywhere
+            // Stay on splashscreen and show login/register buttons
+            console.log("Not logged in → Stay on Splash Screen");
+          }
+
+        }, 1500);
+      } catch (error) {
+        console.log("Error:", error);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <Animated.Image
+        source={{
+          uri: 'https://pbs.twimg.com/profile_images/1675607195679965185/jljnkCLQ_400x400.jpg',
+        }}
+        style={[
+          styles.logo,
+          { transform: [{ scale: logoScale }], opacity: logoOpacity },
+        ]}
+        resizeMode="contain"
+      />
+
+      <Text style={styles.titleText}>ScribeConnect</Text>
+      <Text style={styles.subText}>Learning Without Limits</Text>
+
+      <View style={styles.curvyFrame}>
+        <TouchableOpacity
+          style={[styles.frameButton, { borderTopLeftRadius: 25, borderBottomLeftRadius: 25, backgroundColor: '#ffffff' }]}
+          onPress={() => navigation.navigate('RoleSelectionScreen', { mode: 'login' })}
+        >
+          <Text style={styles.buttonTextPurple}>Login</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.frameButton, { borderTopRightRadius: 25, borderBottomRightRadius: 25, backgroundColor: '#4e1372ff' }]}
+          onPress={() => navigation.navigate('RoleSelectionScreen', { mode: 'register' })}
+        >
+          <Text style={styles.buttonTextWhite}>Register</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  logo: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    marginBottom: 15,
+  },
+  titleText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#6A0DAD',
+    letterSpacing: 1.5,
+  },
+  subText: {
+    fontSize: 16,
+    color: '#555',
+    marginTop: 5,
+    fontStyle: 'italic',
+    marginBottom: 40,
+  },
+  curvyFrame: {
+    flexDirection: 'row',
+    width: '80%',
+    height: 50,
+    borderRadius: 25,
+    overflow: 'hidden',
+    elevation: 3,
+  },
+  frameButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonTextWhite: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonTextPurple: {
+    color: '#641993ff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
+export default SplashScreen;
+
+
+
+//RoleSelectionScreen.jsx
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const RoleSelectionScreen = ({ navigation, route }) => {
+  // Get mode from route params, default to 'register'
+  const mode = route?.params?.mode || 'register'; // 'login' or 'register'
+
+  return (
+    <View style={styles.container}>
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('SplashScreen'); // fallback
+          }
+        }}
+      >
+        <Ionicons name="arrow-back" size={26} color="#000000ff" />
+      </TouchableOpacity>
+
+      <Text style={styles.title}>Select Your Role</Text>
+
+      
+
+
+
+      {/* Visually Impaired button */}
+      <TouchableOpacity
+        style={[styles.roleButton, { backgroundColor: '#6A0DAD' }]}
+        onPress={() => {
+          if (mode === 'login') {
+            navigation.navigate('Login'); // go to Login screen
+          } else {
+            navigation.navigate('Signup', { role: 'Visually Impaired' });
+          }
+        }}
+      >
+        <Text style={styles.roleText}>Visually Impaired</Text>
+      </TouchableOpacity>
+
+      {/* Volunteer button */}
+      <TouchableOpacity
+        style={[styles.roleButton, { backgroundColor: '#fff', borderWidth: 1, borderColor: '#6A0DAD' }]}
+        onPress={() => {
+          if (mode === 'login') {
+            navigation.navigate('Login'); // go to Login screen
+          } else {
+            navigation.navigate('VolunteerRegistration', { role: 'Volunteer' });
+          }
+        }}
+      >
+        <Text style={[styles.roleText, { color: '#6A0DAD' }]}>Volunteer</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#6A0DAD',
+    marginBottom: 50,
+  },
+  roleButton: {
+    width: '80%',
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 15,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  roleText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  backButton: {
+    bottom:240,
+    marginRight:320,
+   
+  }
+
+});
+
+export default RoleSelectionScreen;
+
+
+
+
+//VolunteerRegistration.jsx
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Modal, FlatList } from 'react-native';
+import Icon1 from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/Ionicons';
+import Icon3 from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+const CustomSelect = ({ label, options, selected, onSelect }) => {
+  const [visible, setVisible] = useState(false);
+  return (
+    <View style={{ marginBottom: 15 }}>
+      <Text style={styles.label}>{label}</Text>
+      <TouchableOpacity style={styles.selectButton} onPress={() => setVisible(true)}>
+        <Text>{selected || 'Select'}</Text>
+      </TouchableOpacity>
+
+      <Modal transparent={true} visible={visible} animationType="slide">
+        <TouchableOpacity style={styles.modalBackground} onPress={() => setVisible(false)}>
+          <View style={styles.modalContainer}>
+            <FlatList
+              data={options}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.optionButton} onPress={() => { onSelect(item); setVisible(false); }}>
+                  <Text style={styles.optionText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
+
+// Example dataset (you can expand with all Indian states/districts/cities)
+const locationData = {
+  Maharashtra: {
+    districts: {
+      Ahmednagar: ['Ahmednagar', 'Shrirampur', 'Shirdi', 'Pathardi'],
+      Akola: ['Akola', 'Murtizapur', 'Barshitakli'],
+      Amravati: ['Amravati', 'Daryapur', 'Chandur', 'Morshi'],
+      Aurangabad: ['Aurangabad', 'Paithan', 'Gangapur', 'Vaijapur', 'kannad', 'khuldabad', 'phulambri', 'sillod', 'soegaon',],
+      Beed: ['Beed', 'Georai', 'Ashti', 'Kaij'],
+      Bhandara: ['Bhandara', 'Tumsar', 'Sakoli', 'Pauni'],
+      Chandrapur: ['Chandrapur', 'Ballarpur', 'Rajura', 'Warora'],
+      Dhule: ['Dhule', 'Shindkheda', 'Sakri', 'Sindkheda'],
+      Gadchiroli: ['Gadchiroli', 'Chamorshi', 'Aheri', 'Desaiganj'],
+      Gondia: ['Gondia', 'Tirora', 'Arjuni', 'Deori'],
+      Hingoli: ['Hingoli', 'Kalamnuri', 'Aundha', 'Basmath'],
+      Jalgaon: ['Jalgaon', 'Chalisgaon', 'Pachora', 'Bhusawal'],
+      Jalna: ['Jalna', 'Ambad', 'Badnapur', 'Bhokardan'],
+      Kolhapur: ['Kolhapur', 'Ichalkaranji', 'Sangli', 'Hatkanangale'],
+      Latur: ['Latur', 'Udgir', 'Ausa', 'Nilanga'],
+      Mumbai_City: ['South Mumbai', 'Fort', 'Colaba', 'Dadar'],
+      Mumbai_Suburban: ['Andheri', 'Bandra', 'Borivali', 'Kurla', 'Vikhroli'],
+      Nagpur: ['Nagpur', 'Kamptee', 'Umred', 'Hingna'],
+      Nanded: ['Nanded', 'Deglur', 'Loha', 'Mudkhed'],
+      Nandurbar: ['Nandurbar', 'Shahada', 'Taloda', 'Navapur'],
+      Nashik: ['Nashik', 'Malegaon', 'Sinnar', 'Deolali', 'Igatpuri'],
+      Osmanabad: ['Osmanabad', 'Tuljapur', 'Bhoom', 'Paranda'],
+      Palghar: ['Palghar', 'Dahanu', 'Talasari', 'Vikramgad'],
+      Parbhani: ['Parbhani', 'Jintur', 'Gangakhed', 'Purna'],
+      Pune: ['Pune', 'Pimpri-Chinchwad', 'Baramati', 'Bhor', 'Shirur'],
+      Raigad: ['Alibag', 'Pen', 'Mahad', 'Roha'],
+      Ratnagiri: ['Ratnagiri', 'Chiplun', 'Guhagar', 'Lanja'],
+      Sangli: ['Sangli', 'Miraj', 'Palus', 'Jaysingpur'],
+      Satara: ['Satara', 'Wai', 'Koregaon', 'Karad'],
+      Sindhudurg: ['Sindhudurg', 'Malvan', 'Kankavli', 'Sawantwadi'],
+      Solapur: ['Solapur', 'Pandharpur', 'Barshi', 'Mangalwedha'],
+      Thane: ['Thane', 'Kalyan', 'Ulhasnagar', 'Bhiwandi', 'Vasai'],
+      Wardha: ['Wardha', 'Arvi', 'Deoli', 'Hinganghat'],
+      Washim: ['Washim', 'Karanja', 'Mangrulpir', 'Malegaon'],
+      Yavatmal: ['Yavatmal', 'Pusad', 'Darwha', 'Mahagaon']
+    }
+  },
+
+  AndhraPradesh: {
+    districts: {
+      Anantapur: ['Anantapur', 'Guntakal', 'Hindupur', 'Dharmavaram'],
+      Chittoor: ['Chittoor', 'Tirupati', 'Pileru', 'Punganur'],
+      East_Godavari: ['Kakinada', 'Rajahmundry', 'Peddapuram', 'Rampachodavaram'],
+      Guntur: ['Guntur', 'Tenali', 'Narasaraopet', 'Ponnur'],
+      Krishna: ['Vijayawada', 'Machilipatnam', 'Gudivada', 'Nuzvid'],
+      Kurnool: ['Kurnool', 'Nandyal', 'Adoni', 'Allagadda'],
+      Prakasam: ['Ongole', 'Markapur', 'Chirala', 'Kandukur'],
+      Srikakulam: ['Srikakulam', 'Palasa', 'Tekkali', 'Pathapatnam'],
+      Visakhapatnam: ['Visakhapatnam', 'Bheemunipatnam', 'Anakapalle', 'Pendurti'],
+      Vizianagaram: ['Vizianagaram', 'Parvathipuram', 'Gajapathinagaram', 'Srungavarapukota'],
+      West_Godavari: ['Eluru', 'Palakollu', 'Narasapuram', 'Bhimavaram'],
+      YSR_Kadapa: ['Kadapa', 'Proddatur', 'Jammalamadugu', 'Pulivendula']
+
+    }
+  },
+  ArunachalPradesh: {
+    districts: {
+      Tawang: ['Tawang', 'Dirang', 'Jang', 'Lumla'],
+      West_Kameng: ['Bomdila', 'Bhalukpong', 'Sartung', 'Rupa'],
+      East_Kameng: ['Seppa', 'Bameng', 'Bishing', 'Chayangtajo'],
+      Papum_Pare: ['Itanagar', 'Naharlagun', 'Doimukh', 'Sagalee'],
+      Kurung_Kumey: ['Koloriang', 'Sarli', 'Damin', 'Taliha'],
+      Kra_Daadi: ['Yingkiong', 'Pipsorang', 'Longding', 'Sarli'],
+      Lower_Subansiri: ['Ziro', 'Daporijo', 'Yachuli', 'Dumporijo'],
+      Upper_Subansiri: ['Daporijo', 'Taliha', 'Payum', 'Kaying'],
+      West_Siang: ['Aalo', 'Basar', 'Rumgong', 'Siyum'],
+      East_Siang: ['Pasighat', 'Meka', 'Bilat', 'Tuting'],
+      Siang: ['Along', 'Boleng', 'Geku', 'Ruksin'],
+      Upper_Siang: ['Daporijo', 'Raga', 'Mechuka', 'Yingkiong'],
+      Lower_Siang: ['Likabali', 'Mariyang', 'Along', 'Lilong'],
+      Lower_Dibang_Valley: ['Roing', 'Anini', 'Hunli', 'Dibung'],
+      Upper_Dibang_Valley: ['Meka', 'Anini', 'Hayuliang', 'Etalin'],
+      Lower_Pasir: ['Pasighat', 'Tuting', 'Mariyang'],
+      Upper_Pasir: ['Tezu', 'Hayuliang', 'Chowkham']
+    }
+  },
+  Assam: {
+    districts: {
+      Baksa: ['Baksa', 'Mushalpur', 'Barama'],
+      Barpeta: ['Barpeta', 'Sorbhog', 'Chenga'],
+      Biswanath: ['Biswanath', 'Gohpur', 'Bamuni'],
+      Bongaigaon: ['Bongaigaon', 'Abhayapuri', 'Salakati'],
+      Cachar: ['Silchar', 'Hailakandi', 'Sadar'],
+      Charaideo: ['Sivasagar', 'Sonari', 'Namrup'],
+      Chirang: ['Chirang', 'Kajalgaon', 'Baihata'],
+      Darrang: ['Mangaldoi', 'Dalgaon', 'Bhergaon'],
+      Dhemaji: ['Dhemaji', 'Jonai', 'Gohpur'],
+      Dibrugarh: ['Dibrugarh', 'Tinsukia', 'Naharkatia'],
+      Goalpara: ['Goalpara', 'Dudhnoi', 'Dalu'],
+      Golaghat: ['Golaghat', 'Dergaon', 'Furkating'],
+      Hailakandi: ['Hailakandi', 'Haflong', 'Lala'],
+      Jorhat: ['Jorhat', 'Mariani', 'Titabar'],
+      Kamrup: ['Guwahati', 'Bamunigaon', 'Hajo'],
+      Kamrup_Metro: ['Guwahati', 'Amingaon', 'Beltola'],
+      Karbi_Anglong: ['Diphu', 'Hamren', 'Dongkamukam'],
+      Karimganj: ['Karimganj', 'Patharkandi', 'Badarpur'],
+      Kokrajhar: ['Kokrajhar', 'Dotma', 'Baska'],
+      Lakhimpur: ['North Lakhimpur', 'Dhuliajan', 'Bihpuria'],
+      Majuli: ['Majuli', 'Kamalabari', 'Salmora'],
+      Morigaon: ['Morigaon', 'Jagiroad', 'Bhuragaon'],
+      Nagaon: ['Nagaon', 'Hojai', 'Kampur'],
+      Nalbari: ['Nalbari', 'Tihu', 'Madhyamgram'],
+      Sivasagar: ['Sivasagar', 'Nazira', 'Charaideo'],
+      Sonitpur: ['Tezpur', 'Gohpur', 'Dhekiajuli'],
+      Tinsukia: ['Tinsukia', 'Dibrugarh', 'Duliajan'],
+      Udalguri: ['Udalguri', 'Tangla', 'Harisinga']
+    }
+  },
+  Bihar: {
+    districts: {
+      Araria: ['Araria', 'Forbesganj', 'Areraj'],
+      Arwal: ['Arwal', 'Karpi', 'Sasaram'],
+      Aurangabad: ['Aurangabad', 'Rafiganj', 'Daudnagar'],
+      Banka: ['Banka', 'Amarpur', 'Katoria'],
+      Begusarai: ['Begusarai', 'Barauni', 'Cheria Bariarpur'],
+      Bhagalpur: ['Bhagalpur', 'Naugachhia', 'Kahalgaon'],
+      Bhojpur: ['Ara', 'Bihiya', 'Jagdishpur'],
+      Buxar: ['Buxar', 'Dumraon', 'Rajpur'],
+      Darbhanga: ['Darbhanga', 'Baheri', 'Madhubani'],
+      East_Champaran: ['Motihari', 'Chakia', 'Raxaul'],
+      Gaya: ['Gaya', 'Tekari', 'Manpur'],
+      Gopalganj: ['Gopalganj', 'Uchkagaon', 'Kuchaikote'],
+      Jamui: ['Jamui', 'Chakai', 'Laxmipur'],
+      Jehanabad: ['Jehanabad', 'Makhdumpur', 'Koath'],
+      Kaimur: ['Bhabua', 'Ramgarh', 'Mohania'],
+      Katihar: ['Katihar', 'Barsoi', 'Kursela'],
+      Khagaria: ['Khagaria', 'Mansi', 'Parbatta'],
+      Kishanganj: ['Kishanganj', 'Dewanganj', 'Thakurganj'],
+      Lakhisarai: ['Lakhisarai', 'Barahiya', 'Surajgarha'],
+      Madhepura: ['Madhepura', 'Singhwara', 'Udaipur'],
+      Madhubani: ['Madhubani', 'Benipatti', 'Laukahi'],
+      Munger: ['Munger', 'Bariarpur', 'Sultanganj'],
+      Muzaffarpur: ['Muzaffarpur', 'Motipur', 'Sitamarhi'],
+      Nalanda: ['Bihar Sharif', 'Rajgir', 'Hilsa'],
+      Nawada: ['Nawada', 'Rajauli', 'Warisaliganj'],
+      Patna: ['Patna', 'Fatuha', 'Danapur'],
+      Purnia: ['Purnia', 'Banmankhi', 'Dhamdaha'],
+      Rohtas: ['Sasaram', 'Dehri', 'Bhabua'],
+      Saharsa: ['Saharsa', 'Simri Bakhtiarpur', 'Madhepura'],
+      Samastipur: ['Samastipur', 'Mohiuddinagar', 'Marhaura'],
+      Saran: ['Chhapra', 'Mashrakh', 'Dighwara'],
+      Sheikhpura: ['Sheikhpura', 'Chewara', 'Amla'],
+      Sheohar: ['Sheohar', 'Mohiuddinagar', 'Parsauni'],
+      Sitamarhi: ['Sitamarhi', 'Bairgania', 'Suppi'],
+      Siwan: ['Siwan', 'Gop', 'Mairwa'],
+      Supaul: ['Supaul', 'Triveniganj', 'Nirmali'],
+      Vaishali: ['Hajipur', 'Mahua', 'Desari'],
+      West_Champaran: ['Bettiah', 'Narkatiaganj', 'Chakia']
+    }
+  },
+  Chhatisgarh: {
+    districts: {
+      Balod: ['Balod', 'Balod Bazar', 'Dondi'],
+      Baloda_Bazar: ['Baloda Bazar', 'Bhatapara', 'Simga'],
+      Balrampur: ['Balrampur', 'Barsur', 'Rajnandgaon'],
+      Bastar: ['Jagdalpur', 'Chitrakote', 'Baderajpur'],
+      Bemetara: ['Bemetara', 'Dhamtari', 'Kawardha'],
+      Bijapur: ['Bijapur', 'Bagicha', 'Kondagaon'],
+      Bilaspur: ['Bilaspur', 'Udaypur', 'Takhatpur'],
+      Dantewada: ['Dantewada', 'Geedam', 'Kondagaon'],
+      Dhamtari: ['Dhamtari', 'Nagri', 'Tirathgarh'],
+      Durg: ['Durg', 'Bhilai', 'Dhamdha'],
+      Gariyaband: ['Gariyaband', 'Mainpur', 'Bhandara'],
+      Janjgir_Champa: ['Janjgir', 'Champa', 'Akaltara'],
+      Jashpur: ['Jashpur', 'Kunkuri', 'Lalgaon'],
+      Kabirdham: ['Kawardha', 'Palari', 'Lormi'],
+      Kanker: ['Kanker', 'Pakhanjur', 'Narharpur'],
+      Kondagaon: ['Kondagaon', 'Bhaismunda', 'Nandgaon'],
+      Korba: ['Korba', 'Katghora', 'Podi'],
+      Koriya: ['Baikunthpur', 'Manendragarh', 'Lormi'],
+      Mahasamund: ['Mahasamund', 'Saraipali', 'Basna'],
+      Mungeli: ['Mungeli', 'Lormi', 'Beltara'],
+      Narayanpur: ['Narayanpur', 'Odgi', 'Halma'],
+      Raigarh: ['Raigarh', 'Karanjia', 'Gharghoda'],
+      Raipur: ['Raipur', 'Dhamtari', 'Arang'],
+      Rajnandgaon: ['Rajnandgaon', 'Dongargarh', 'Chhuikhadan'],
+      Sukma: ['Sukma', 'Konta', 'Palnar'],
+      Surajpur: ['Surajpur', 'Premnagar', 'Bhairamgarh'],
+      Surguja: ['Ambikapur', 'Bade Bazar', 'Mainpat']
+    }
+  },
+  Goa: {
+    districts: {
+      North_Goa: ['Panaji', 'Mapusa', 'Bicholim', 'Pernem'],
+      South_Goa: ['Margao', 'Vasco da Gama', 'Ponda', 'Quepem']
+    }
+  },
+  Gujarat: {
+    districts: {
+      Ahmedabad: ['Ahmedabad', 'Maninagar', 'Bapunagar', 'Navrangpura'],
+      Amreli: ['Amreli', 'Lathi', 'Savarkundla', 'Rajula'],
+      Anand: ['Anand', 'Petlad', 'Borsad', 'Khambhat'],
+      Aravalli: ['Modasa', 'Malpur', 'Dhansura', 'Bayad'],
+      Banaskantha: ['Palanpur', 'Deesa', 'Tharad', 'Dantiwada'],
+      Bharuch: ['Bharuch', 'Ankleshwar', 'Jambusar', 'Hansot'],
+      Bhavnagar: ['Bhavnagar', 'Ghogha', 'Mahuva', 'Botad'],
+      Botad: ['Botad', 'Gadhada', 'Gariadhar', 'Umrala'],
+      Chhota_Udepur: ['Chhota Udepur', 'Jetpur Pavi', 'Chhotaudepur'],
+      Dahod: ['Dahod', 'Limkheda', 'Jhalod', 'Sundeli'],
+      Dang: ['Ahwa', 'Waghai', 'Subir'],
+      Gandhinagar: ['Gandhinagar', 'Kalol', 'Mansa', 'Panchmahal'],
+      Gir_Somnath: ['Veraval', 'Junagadh', 'Kodinar', 'Talala'],
+      Jamnagar: ['Jamnagar', 'Jodiya', 'Dhrol', 'Kalavad'],
+      Junagadh: ['Junagadh', 'Veraval', 'Keshod', 'Talala'],
+      Kheda: ['Nadiad', 'Kheda', 'Matar', 'Kapadvanj'],
+      Mahisagar: ['Balasinor', 'Lunawada', 'Santrampur'],
+      Mehsana: ['Mehsana', 'Visnagar', 'Kheralu', 'Unjha'],
+      Morbi: ['Morbi', 'Wankaner', 'Lodhika', 'Tankara'],
+      Narmada: ['Rajpipla', 'Nandod', 'Tilakwada'],
+      Navsari: ['Navsari', 'Chikhli', 'Vansda', 'Gandevi'],
+      Panchmahal: ['Godhra', 'Kalol', 'Halol', 'Devgadh Baria'],
+      Patan: ['Patan', 'Radhanpur', 'Sidhpur', 'Harij'],
+      Porbandar: ['Porbandar', 'Kutiyana', 'Ranavav'],
+      Rajkot: ['Rajkot', 'Jetpur', 'Jamnagar', 'Upleta'],
+      Sabarkantha: ['Himmatnagar', 'Idar', 'Talod', 'Prantij'],
+      Surat: ['Surat', 'Valsad', 'Navsari', 'Bardoli'],
+      Surendranagar: ['Surendranagar', 'Wadhwan', 'Limbdi', 'Chotila'],
+      Tapi: ['Vyara', 'Songadh', 'Nizar', 'Valod'],
+      Vadodara: ['Vadodara', 'Anand', 'Savli', 'Padra'],
+      Valsad: ['Valsad', 'Umargam', 'Pardi', 'Vapi']
+    }
+  },
+  Haryana: {
+    districs: {
+      Ambala: ['Ambala', 'Naraingarh', 'Barara'],
+      Bhiwani: ['Bhiwani', 'Charkhi Dadri', 'Bawani Khera'],
+      Charkhi_Dadri: ['Charkhi Dadri', 'Badhra', 'Bapora'],
+      Faridabad: ['Faridabad', 'Ballabgarh', 'Bawal'],
+      Fatehabad: ['Fatehabad', 'Ratia', 'Tosham'],
+      Gurugram: ['Gurugram', 'Sohna', 'Pataudi'],
+      Hisar: ['Hisar', 'Hansi', 'Nalwa', 'Adampur'],
+      Jhajjar: ['Jhajjar', 'Bahadurgarh', 'Matanhail'],
+      Jind: ['Jind', 'Safidon', 'Narwana', 'Uchana'],
+      Kaithal: ['Kaithal', 'Pundri', 'Guhla', 'Kalanwali'],
+      Karnal: ['Karnal', 'Assandh', 'Indri', 'Nilokheri'],
+      Kurukshetra: ['Kurukshetra', 'Pehowa', 'Thanesar', 'Shahabad'],
+      Mahendragarh: ['Narnaul', 'Mahendragarh', 'Kanina'],
+      Mewat: ['Nuh', 'Ferozepur Jhirka', 'Nagina'],
+      Palwal: ['Palwal', 'Hodal', 'Prithla'],
+      Panchkula: ['Panchkula', 'Pinjore', 'Morni'],
+      Panipat: ['Panipat', 'Samalkha', 'Israna'],
+      Rewari: ['Rewari', 'Kosli', 'Bawal'],
+      Rohtak: ['Rohtak', 'Meham', 'Sampla'],
+      Sirsa: ['Sirsa', 'Rania', 'Ellenabad'],
+      Sonipat: ['Sonipat', 'Gohana', 'Kharkhoda'],
+      Yamunanagar: ['Yamunanagar', 'Jagadhri', 'Radaur']
+    }
+  },
+  HimachalPradesh: {
+    distrits: {
+      Bilaspur: ['Bilaspur', 'Ghumarwin', 'Bhageri'],
+      Chamba: ['Chamba', 'Dalhousie', 'Khajjhiar'],
+      Hamirpur: ['Hamirpur', 'Nadaun', 'Bhoranj'],
+      Kangra: ['Dharamshala', 'Palampur', 'Kangra'],
+      Kinnaur: ['Rampur', 'Kalpa', 'Reckong Peo'],
+      Kullu: ['Kullu', 'Manali', 'Naggar'],
+      Lahaul_Spas: ['Keylong', 'Losar', 'Sissu'],
+      Mandi: ['Mandi', 'Sundernagar', 'Jogindernagar'],
+      Shimla: ['Shimla', 'Narkanda', 'Theog'],
+      Sirmaur: ['Nahan', 'Paonta Sahib', 'Rajgarh'],
+      Solan: ['Solan', 'Kasauli', 'Nalagarh'],
+      Una: ['Una', 'Amb', 'Bangana']
+    }
+  },
+  Jharkhand: {
+    districts: {
+      Bokaro: ['Bokaro', 'Chas', 'Phusro'],
+      Chatra: ['Chatra', 'Itkhori', 'Simaria'],
+      Deoghar: ['Deoghar', 'Madhupur', 'Babhangaon'],
+      Dhanbad: ['Dhanbad', 'Jharia', 'Ranchi'],
+      Dumka: ['Dumka', 'Shikaripara', 'Jarmundi'],
+      East_Singhbhum: ['Jamshedpur', 'Ghatshila', 'Chakradharpur'],
+      Garhwa: ['Garhwa', 'Ramgarh', 'Bhawanathpur'],
+      Giridih: ['Giridih', 'Dumri', 'Jamua'],
+      Godda: ['Godda', 'Mahagama', 'Pathargama'],
+      Gumla: ['Gumla', 'Basia', 'Bishunpur'],
+      Hazaribagh: ['Hazaribagh', 'Ramgarh', 'Barkagaon'],
+      Jamtara: ['Jamtara', 'Narayanpur', 'Karma'],
+      Khunti: ['Khunti', 'Murhu', 'Karra'],
+      Koderma: ['Koderma', 'Jhumri Tilaiya', 'Barkatha'],
+      Latehar: ['Latehar', 'Balumath', 'Manika'],
+      Lohardaga: ['Lohardaga', 'Kisko', 'Bhandra'],
+      Pakur: ['Pakur', 'Mahespur', 'Hiranpur'],
+      Palamu: ['Daltonganj', 'Chhatarpur', 'Medininagar'],
+      Ramgarh: ['Ramgarh', 'Gola', 'Barkakana'],
+      Ranchi: ['Ranchi', 'Namkum', 'Ormanjhi'],
+      Sahebganj: ['Sahebganj', 'Rajmahal', 'Barharwa'],
+      Seraikela_Kharsawan: ['Seraikela', 'Kharsawan', 'Gamharia'],
+      Simdega: ['Simdega', 'Thethaitangar', 'Bano'],
+      West_Singhbhum: ['Chaibasa', 'Chakradharpur', 'Ghatsila']
+    }
+  },
+  Karnataka: {
+    districts: {
+      Bagalkot: ['Bagalkot', 'Mudhol', 'Badami', 'Jamkhandi'],
+      Ballari: ['Ballari', 'Hospet', 'Sandur', 'Siruguppa'],
+      Belagavi: ['Belagavi', 'Gokak', 'Hukkeri', 'Chikkodi'],
+      Bengaluru_Urban: ['Bengaluru', 'Yelahanka', 'Whitefield', 'Koramangala'],
+      Bengaluru_Rural: ['Nelamangala', 'Devanahalli', 'Hoskote', 'Doddaballapura'],
+      Bidar: ['Bidar', 'Humnabad', 'Bhalki', 'Aurad'],
+      Chamarajanagar: ['Chamarajanagar', 'Kollegal', 'Yelandur'],
+      Chikkamagaluru: ['Chikkamagaluru', 'Mudigere', 'Kadur', 'Tarikere'],
+      Chikkaballapur: ['Chikkaballapur', 'Gauribidanur', 'Bagepalli'],
+      Chitradurga: ['Chitradurga', 'Challakere', 'Hiriyur'],
+      Dakshina_Kannada: ['Mangaluru', 'Puttur', 'Belthangady', 'Sullia'],
+      Davanagere: ['Davanagere', 'Harihar', 'Channagiri', 'Honnali'],
+      Dharwad: ['Dharwad', 'Hubli', 'Navalgund', 'Kalghatgi'],
+      Gadag: ['Gadag', 'Ron', 'Shirhatti', 'Nargund'],
+      Hassan: ['Hassan', 'Sakleshpur', 'Belur', 'Arsikere'],
+      Haveri: ['Haveri', 'Shiggaon', 'Byadgi', 'Hirekerur'],
+      Kalaburagi: ['Kalaburagi', 'Chittapur', 'Sedam', 'Aland'],
+      Kodagu: ['Madikeri', 'Virajpet', 'Somwarpet'],
+      Kolar: ['Kolar', 'Malur', 'Mulbagal', 'Bangarapet'],
+      Koppal: ['Koppal', 'Gangavathi', 'Yelburga', 'Kanakagiri'],
+      Mandya: ['Mandya', 'Maddur', 'Malavalli', 'Srirangapatna'],
+      Mysuru: ['Mysuru', 'Nanjangud', 'Hunsur', 'Heggadadevana Kote'],
+      Raichur: ['Raichur', 'Manvi', 'Shahapur', 'Devadurga'],
+      Ramanagara: ['Ramanagara', 'Channapatna', 'Kanakapura', 'Magadi'],
+      Shivamogga: ['Shivamogga', 'Sagar', 'Hosanagara', 'Soraba'],
+      Tumakuru: ['Tumakuru', 'Gubbi', 'Tiptur', 'Sira'],
+      Udupi: ['Udupi', 'Karkala', 'Kundapura', 'Byndoor'],
+      Uttara_Kannada: ['Karwar', 'Sirsi', 'Bhatkal', 'Haliyal'],
+      Vijayapura: ['Vijayapura', 'Basavana Bagevadi', 'Indi', 'Sindagi'],
+      Yadgir: ['Yadgir', 'Shahapur', 'Wadgera', 'Hangal']
+    }
+  },
+  Kerala: {
+    districts: {
+      Alappuzha: ['Alappuzha', 'Haripad', 'Cherthala', 'Ambalappuzha'],
+      Ernakulam: ['Kochi', 'Aluva', 'Muvattupuzha', 'Perumbavoor'],
+      Idukki: ['Painavu', 'Thodupuzha', 'Devikulam', 'Udumbanchola'],
+      Kannur: ['Kannur', 'Taliparamba', 'Payyannur', 'Thalassery'],
+      Kasaragod: ['Kasaragod', 'Kanhangad', 'Nileshwar', 'Bekal'],
+      Kollam: ['Kollam', 'Karunagappally', 'Kottarakkara', 'Punalur'],
+      Kottayam: ['Kottayam', 'Changanassery', 'Vaikom', 'Pala'],
+      Kozhikode: ['Kozhikode', 'Vatakara', 'Thamarassery', 'Koyilandy'],
+      Malappuram: ['Malappuram', 'Perinthalmanna', 'Tirur', 'Ponnani'],
+      Palakkad: ['Palakkad', 'Ottapalam', 'Chittur', 'Alathur'],
+      Pathanamthitta: ['Pathanamthitta', 'Tiruvalla', 'Adoor', 'Kozhencherry'],
+      Thiruvananthapuram: ['Thiruvananthapuram', 'Neyyattinkara', 'Varkala', 'Attingal'],
+      Thrissur: ['Thrissur', 'Guruvayur', 'Chalakudy', 'Kunnamkulam'],
+      Wayanad: ['Kalpetta', 'Sultan Bathery', 'Mananthavady', 'Meppadi']
+    }
+
+  },
+  MadhyaPradesh: {
+    districts: {
+      Agar_Malwa: ['Agar', 'Malwa', 'Shajapur'],
+      Alirajpur: ['Alirajpur', 'Chandpur', 'Ghatia'],
+      Anuppur: ['Anuppur', 'Pushprajgarh', 'Jaithari'],
+      Ashoknagar: ['Ashoknagar', 'Chanderi', 'Isagarh'],
+      Balaghat: ['Balaghat', 'Lanji', 'Katangi', 'Waraseoni'],
+      Barwani: ['Barwani', 'Sendhwa', 'Rajpur', 'Pansemal'],
+      Betul: ['Betul', 'Athner', 'Bhainsdehi', 'Ghodadongri'],
+      Bhind: ['Bhind', 'Lahar', 'Gohad', 'Ater'],
+      Bhopal: ['Bhopal', 'Huzur', 'Berasia', 'Kolar'],
+      Burhanpur: ['Burhanpur', 'Nepanagar', 'Bhaurgaon'],
+      Chhatarpur: ['Chhatarpur', 'Rajnagar', 'Khajuraho', 'Bijawar'],
+      Chhindwara: ['Chhindwara', 'Parasia', 'Panchpahad', 'Saoner'],
+      Damoh: ['Damoh', 'Hatta', 'Pathariya', 'Patera'],
+      Datia: ['Datia', 'Seondha', 'Sohawal'],
+      Dewas: ['Dewas', 'Sonkatch', 'Kannod', 'Tonkkar'],
+      Dhar: ['Dhar', 'Kukshi', 'Badnawar', 'Manawar'],
+      Dindori: ['Dindori', 'Sihora', 'Shahpura', 'Sagwa'],
+      Guna: ['Guna', 'Chachoda', 'Aron', 'Raghogarh'],
+      Gwalior: ['Gwalior', 'Bhitarwar', 'Morena', 'Sabalgarh'],
+      Harda: ['Harda', 'Sirsa', 'Timarni'],
+      Hoshangabad: ['Hoshangabad', 'Itarsi', 'Pipariya', 'Narsinghpur'],
+      Indore: ['Indore', 'Mhow', 'Dewas', 'Sanwer'],
+      Jabalpur: ['Jabalpur', 'Katangi', 'Mandla', 'Shahpura'],
+      Jhabua: ['Jhabua', 'Thandla', 'Petlawad', 'Alirajpur'],
+      Katni: ['Katni', 'Murwara', 'Bahoriband', 'Kawas'],
+      Khandwa: ['Khandwa', 'Mundi', 'Harsud', 'Pandhana'],
+      Khargone: ['Khargone', 'Barwaha', 'Khetia', 'Bhikangaon'],
+      Mandla: ['Mandla', 'Ghughari', 'Nainpur', 'Narayanganj'],
+      Mandsaur: ['Mandsaur', 'Sardarpur', 'Garoth', 'Malhargarh'],
+      Morena: ['Morena', 'Joura', 'Ambah', 'Sabalgarh'],
+      Narsinghpur: ['Narsinghpur', 'Gadarwara', 'Bichhiya', 'Chichli'],
+      Neemuch: ['Neemuch', 'Manasa', 'Jawad', 'Singoli'],
+      Panna: ['Panna', 'Ajaygarh', 'Hinauta', 'Rajauli'],
+      Raisen: ['Raisen', 'Goharganj', 'Silwani', 'Sehore'],
+      Rajgarh: ['Rajgarh', 'Biaora', 'Khilaudi', 'Narsinghgarh'],
+      Ratlam: ['Ratlam', 'Jaora', 'Mandsaur', 'Sailana'],
+      Rewa: ['Rewa', 'Mangawan', 'Satna', 'Maihar'],
+      Sagar: ['Sagar', 'Khurai', 'Khurai', 'Narsinghgarh'],
+      Satna: ['Satna', 'Maihar', 'Amarpatan', 'Nagod'],
+      Sehore: ['Sehore', 'Ashta', 'Berasia', 'Sihora'],
+      Seoni: ['Seoni', 'Chhapara', 'Lakhnadon', 'Keolari'],
+      Shahdol: ['Shahdol', 'Anuppur', 'Jaisinghnagar', 'Beohari'],
+      Shajapur: ['Shajapur', 'Shujalpur', 'Kalapipal', 'Biaora'],
+      Sheopur: ['Sheopur', 'Vijaipur', 'Kolar', 'Morena'],
+      Shivpuri: ['Shivpuri', 'Kolar', 'Pichhore', 'Karera'],
+      Sidhi: ['Sidhi', 'Singrauli', 'Churhat', 'Gorakhpur'],
+      Singrauli: ['Singrauli', 'Deosar', 'Chitrangi', 'Gopad Banjari'],
+      Tikamgarh: ['Tikamgarh', 'Prithvipur', 'Baldeogarh', 'Jatara'],
+      Ujjain: ['Ujjain', 'Nagda', 'Badnagar', 'Mahidpur'],
+      Umaria: ['Umaria', 'Baikunthpur', 'Basantpur', 'Johilla'],
+      Vidisha: ['Vidisha', 'Kurwai', 'Sanchi', 'Bhilakhedi']
+    }
+  },
+  Maharashtra: {
+    districts: {
+      Ahmednagar: ['Ahmednagar', 'Shrirampur', 'Shirdi', 'Pathardi'],
+      Akola: ['Akola', 'Murtizapur', 'Barshitakli'],
+      Amravati: ['Amravati', 'Daryapur', 'Chandur', 'Morshi'],
+      Aurangabad: ['Aurangabad', 'Paithan', 'Gangapur', 'Vaijapur'],
+      Beed: ['Beed', 'Georai', 'Ashti', 'Kaij'],
+      Bhandara: ['Bhandara', 'Tumsar', 'Sakoli', 'Pauni'],
+      Chandrapur: ['Chandrapur', 'Ballarpur', 'Rajura', 'Warora'],
+      Dhule: ['Dhule', 'Shindkheda', 'Sakri', 'Sindkheda'],
+      Gadchiroli: ['Gadchiroli', 'Chamorshi', 'Aheri', 'Desaiganj'],
+      Gondia: ['Gondia', 'Tirora', 'Arjuni', 'Deori'],
+      Hingoli: ['Hingoli', 'Kalamnuri', 'Aundha', 'Basmath'],
+      Jalgaon: ['Jalgaon', 'Chalisgaon', 'Pachora', 'Bhusawal'],
+      Jalna: ['Jalna', 'Ambad', 'Badnapur', 'Bhokardan'],
+      Kolhapur: ['Kolhapur', 'Ichalkaranji', 'Sangli', 'Hatkanangale'],
+      Latur: ['Latur', 'Udgir', 'Ausa', 'Nilanga'],
+      Mumbai_City: ['South Mumbai', 'Fort', 'Colaba', 'Dadar'],
+      Mumbai_Suburban: ['Andheri', 'Bandra', 'Borivali', 'Kurla', 'Vikhroli'],
+      Nagpur: ['Nagpur', 'Kamptee', 'Umred', 'Hingna'],
+      Nanded: ['Nanded', 'Deglur', 'Loha', 'Mudkhed'],
+      Nandurbar: ['Nandurbar', 'Shahada', 'Taloda', 'Navapur'],
+      Nashik: ['Nashik', 'Malegaon', 'Sinnar', 'Deolali', 'Igatpuri'],
+      Osmanabad: ['Osmanabad', 'Tuljapur', 'Bhoom', 'Paranda'],
+      Palghar: ['Palghar', 'Dahanu', 'Talasari', 'Vikramgad'],
+      Parbhani: ['Parbhani', 'Jintur', 'Gangakhed', 'Purna'],
+      Pune: ['Pune', 'Pimpri-Chinchwad', 'Baramati', 'Bhor', 'Shirur'],
+      Raigad: ['Alibag', 'Pen', 'Mahad', 'Roha'],
+      Ratnagiri: ['Ratnagiri', 'Chiplun', 'Guhagar', 'Lanja'],
+      Sangli: ['Sangli', 'Miraj', 'Palus', 'Jaysingpur'],
+      Satara: ['Satara', 'Wai', 'Koregaon', 'Karad'],
+      Sindhudurg: ['Sindhudurg', 'Malvan', 'Kankavli', 'Sawantwadi'],
+      Solapur: ['Solapur', 'Pandharpur', 'Barshi', 'Mangalwedha'],
+      Thane: ['Thane', 'Kalyan', 'Ulhasnagar', 'Bhiwandi', 'Vasai'],
+      Wardha: ['Wardha', 'Arvi', 'Deoli', 'Hinganghat'],
+      Washim: ['Washim', 'Karanja', 'Mangrulpir', 'Malegaon'],
+      Yavatmal: ['Yavatmal', 'Pusad', 'Darwha', 'Mahagaon']
+    }
+  },
+  Manipur: {
+    districts: {
+      Bishnupur: ['Bishnupur', 'Nambol', 'Moijing', 'Kumbi'],
+      Chandel: ['Chandel', 'Khengjoy', 'Lamdangmei', 'Tengnoupal'],
+      Churachandpur: ['Churachandpur', 'Singhat', 'Lamka', 'Saikot'],
+      Imphal_East: ['Porompat', 'Thoubal', 'Kakching', 'Wangoi'],
+      Imphal_West: ['Lamphelpat', 'Singjamei', 'Patsoi', 'Heingang'],
+      Jiribam: ['Jiribam', 'Phungyar', 'Moreh', 'Vangai'],
+      Kakching: ['Kakching', 'Sugnu', 'Waikhong', 'Hiyanglam'],
+      Kamjong: ['Kamjong', 'Phungyar', 'Kasom Khullen', 'Kasom Khunou'],
+      Kangpokpi: ['Sadar Hills', 'Tingkhong', 'Chingai', 'Kangchup'],
+      Noney: ['Noney', 'Longmai', 'Khoupum', 'Kamjong'],
+      Pherzawl: ['Pherzawl', 'Thanlon', 'Kangvai', 'Chingai'],
+      Senapati: ['Senapati', 'Maram', 'Paomata', 'Purul'],
+      Tamenglong: ['Tamenglong', 'Tamei', 'Nungba', 'Nungba Valley'],
+      Tengnoupal: ['Tengnoupal', 'Moreh', 'Chandel', 'Lamdangmei'],
+      Thoubal: ['Thoubal', 'Wangjing', 'Khangabok', 'Heirok'],
+      Ukhrul: ['Ukhrul', 'Phungyar', 'Hungpung', 'Khangkhui']
+    }
+  },
+  Meghalaya: {
+    districts: {
+      East_Garo_Hills: ['Williamnagar', 'Baghmara', 'Rongjeng', 'Chokpot'],
+      East_Jaintia_Hills: ['Khliehriat', 'Jowai', 'Nongpoh', 'Amlarem'],
+      East_Khasi_Hills: ['Shillong', 'Mawkynrew', 'Nongthymmai', 'Mawphlang'],
+      North_Garo_Hills: ['Resubelpara', 'Dalu', 'Songsak', 'Selsella'],
+      Ri_Bhoi: ['Nongpoh', 'Umroi', 'Mairang', 'Mawkyrwat'],
+      South_Garo_Hills: ['Baghmara', 'Ampati', 'Dalu', 'Williamnagar'],
+      South_West_Garo_Hills: ['Ampati', 'Dadenggiri', 'Selsella', 'Tikrikilla'],
+      South_West_Khasi_Hills: ['Mawkyrwat', 'Mairang', 'Nongstoin', 'Mawthadraishan'],
+      West_Garo_Hills: ['Tura', 'Dadenggiri', 'Ampati', 'Phulbari'],
+      West_Jaintia_Hills: ['Jowai', 'Khliehriat', 'Nartiang', 'Saipung'],
+      West_Khasi_Hills: ['Nongstoin', 'Mairang', 'Mawthadraishan', 'Sohra']
+    }
+  },
+  Mizoram: {
+    districts: {
+      Aizawl: ['Aizawl', 'Tlangnuam', 'Zawlnuam', 'Sairang'],
+      Champhai: ['Champhai', 'Khawzawl', 'Khawbung', 'Ngopa'],
+      Kolasib: ['Kolasib', 'Mamit', 'Biate', 'Tuisen'],
+      Lawngtlai: ['Lawngtlai', 'Sangau', 'Laki', 'Bikram'],
+      Lunglei: ['Lunglei', 'Thlarchhip', 'Hnahthial', 'Sangau'],
+      Mamit: ['Mamit', 'Sailam', 'Reiek', 'Dampa'],
+      Saiha: ['Saiha', 'Tuipang', 'Chawngte', 'Hnahlan'],
+      Serchhip: ['Serchhip', 'North Vanlaiphai', 'East Lungdar', 'Biate']
+    }
+  },
+  Nagaland: {
+    districts: {
+      Dimapur: ['Dimapur', 'Chumukedima', 'Khermahal', 'Seithekema'],
+      Kiphire: ['Kiphire', 'Amahato', 'Pungro', 'Chithising'],
+      Kohima: ['Kohima', 'Chiephobozou', 'Jakhama', 'Khuzama'],
+      Longleng: ['Longleng', 'Tamlu', 'Thonoknyu', 'Changkikong'],
+      Mokokchung: ['Mokokchung', 'Tuli', 'Changtongya', 'Mangkolemba'],
+      Mon: ['Mon', 'Chingmei', 'Phomching', 'Mokokchung'],
+      Peren: ['Peren', 'Doyang', 'Tening', 'Pheza'],
+      Phek: ['Phek', 'Meluri', 'Chozuba', 'Kiphire'],
+      Tuensang: ['Tuensang', 'Changtongya', 'Wokha', 'Tsurang'],
+      Wokha: ['Wokha', 'Molung', 'Sanis', 'Chukitong'],
+      Zunheboto: ['Zunheboto', 'Aghunato', 'Satakha', 'Khonoma']
+    }
+  },
+  Odisha: {
+    districts: {
+      Angul: ['Angul', 'Talcher', 'Athmallik', 'Pallahara'],
+      Balangir: ['Balangir', 'Titlagarh', 'Patnagarh', 'Boudh'],
+      Balasore: ['Balasore', 'Nilagiri', 'Jaleswar', 'Remuna'],
+      Bargarh: ['Bargarh', 'Attabira', 'Bhatli', 'Paikmal'],
+      Bhadrak: ['Bhadrak', 'Dhamnagar', 'Basudebpur', 'Bhandari'],
+      Boudh: ['Boudh', 'Phulbani', 'Harapanga', 'Khandapada'],
+      Cuttack: ['Cuttack', 'Athagarh', 'Niali', 'Salipur'],
+      Deogarh: ['Deogarh', 'Barbil', 'Bamra', 'Kaniha'],
+      Dhenkanal: ['Dhenkanal', 'Kamakshyanagar', 'Hindol', 'Odapada'],
+      Gajapati: ['Paralakhemundi', 'Nuapada', 'Rayagada', 'Serango'],
+      Ganjam: ['Bhubaneswar', 'Berhampur', 'Chatrapur', 'Aska'],
+      Jagatsinghpur: ['Jagatsinghpur', 'Tirtol', 'Paradip', 'Naugaon'],
+      Jajpur: ['Jajpur', 'Byasanagar', 'Dhauli', 'Danagadi'],
+      Jharsuguda: ['Jharsuguda', 'Belpahar', 'Lakhanpur', 'Bhandra'],
+      Kalahandi: ['Bhawanipatna', 'Junagarh', 'Lanjigarh', 'Dharmagarh'],
+      Kandhamal: ['Phulbani', 'Baliguda', 'Kotagarh', 'Daringbadi'],
+      Kendrapara: ['Kendrapara', 'Aul', 'Rajkanika', 'Mahakalpada'],
+      Kendujhar: ['Kendujhar', 'Barbil', 'Sukinda', 'Telkoi'],
+      Khordha: ['Khordha', 'Bhubaneswar', 'Bolgada', 'Tangi'],
+      Koraput: ['Koraput', 'Jeypore', 'Sunabeda', 'Nabarangpur'],
+      Malkangiri: ['Malkangiri', 'Jayanagar', 'Kalimela', 'Chintapalli'],
+      Mayurbhanj: ['Baripada', 'Rairangpur', 'Udala', 'Karanjia'],
+      Nabarangpur: ['Nabarangpur', 'Papadahandi', 'Umerkote', 'Tentulikhunti'],
+      Nayagarh: ['Nayagarh', 'Odagaon', 'Daspalla', 'Khandapara'],
+      Nuapada: ['Nuapada', 'Khariar', 'Komna', 'Sinapali'],
+      Puri: ['Puri', 'Konark', 'Chandrabhaga', 'Satyabadi'],
+      Rayagada: ['Rayagada', 'Gunupur', 'Padmapur', 'KORAPUT'],
+      Sambalpur: ['Sambalpur', 'Jharsuguda', 'Rengali', 'Hirakud'],
+      Subarnapur: ['Sonepur', 'Binka', 'Birmaharajpur', 'Tarbha'],
+      Sundargarh: ['Sundargarh', 'Rourkela', 'Biramitrapur', 'Rajagangapur']
+    }
+  },
+  Punjab: {
+    districts: {
+      Amritsar: ['Amritsar', 'Ajnala', 'Attari', 'Majitha'],
+      Barnala: ['Barnala', 'Bhawanigarh', 'Tapa', 'Sangrur'],
+      Bathinda: ['Bathinda', 'Rampura Phul', 'Mansa', 'Phul'],
+      Faridkot: ['Faridkot', 'Kotkapura', 'Jaitu', 'Guru Har Sahai'],
+      Fatehgarh_Sahib: ['Fatehgarh Sahib', 'Khamanon', 'Amloh', 'Bassi Pathana'],
+      Fazilka: ['Fazilka', 'Abohar', 'Jalalabad', 'Sadiq'],
+      Firozpur: ['Firozpur', 'Zira', 'Guru Har Sahai', 'Talwandi Bhai'],
+      Gurdaspur: ['Gurdaspur', 'Batala', 'Pathankot', 'Dera Baba Nanak'],
+      Hoshiarpur: ['Hoshiarpur', 'Dasuya', 'Tanda', 'Mahilpur'],
+      Jalandhar: ['Jalandhar', 'Phillaur', 'Nakodar', 'Shahkot'],
+      Kapurthala: ['Kapurthala', 'Sultanpur', 'Phagwara', 'Khera'],
+      Ludhiana: ['Ludhiana', 'Raikot', 'Samrala', 'Payal'],
+      Mansa: ['Mansa', 'Sardulgarh', 'Bareta', 'Rakh'],
+      Moga: ['Moga', 'Bagha Purana', 'Kot Ise Khan', 'Badhni Kalan'],
+      Muktsar: ['Muktsar', 'Gidderbaha', 'Lambi', 'Malout'],
+      Nawanshahr: ['Nawanshahr', 'Banga', 'Balachaur', 'Saroya'],
+      Pathankot: ['Pathankot', 'Dera Baba Nanak', 'Gurdaspur', 'Batala'],
+      Patiala: ['Patiala', 'Rajpura', 'Samana', 'Sanaur'],
+      Rupnagar: ['Rupnagar', 'Nurpur Bedi', 'Chamkaur Sahib', 'Anandpur Sahib'],
+      Sangrur: ['Sangrur', 'Dhuri', 'Lehragaga', 'Moonak'],
+      SAS_Nagar: ['Mohali', 'Kharar', 'Derabassi', 'Ajitgarh'],
+      TarnTaran: ['Tarn Taran', 'Khadoor Sahib', 'Patti', 'Kapurthala']
+    }
+  },
+  Rajasthan: {
+    districts: {
+      Ajmer: ['Ajmer', 'Pushkar', 'Kishangarh', 'Beawar'],
+      Alwar: ['Alwar', 'Bharatpur', 'Neemrana', 'Rajgarh'],
+      Banswara: ['Banswara', 'Kushalgarh', 'Ghatol', 'Bagidora'],
+      Baran: ['Baran', 'Atru', 'Kishanganj', 'Chhabra'],
+      Barmer: ['Barmer', 'Balotra', 'Guda Malani', 'Sheo'],
+      Bharatpur: ['Bharatpur', 'Deeg', 'Kaman', 'Nathdwara'],
+      Bhilwara: ['Bhilwara', 'Shahpura', 'Asind', 'Mandal'],
+      Bikaner: ['Bikaner', 'Nokha', 'Khajuwala', 'Lunkaransar'],
+      Bundi: ['Bundi', 'Bundi City', 'Keshoraipatan', 'Deoli'],
+      Chittorgarh: ['Chittorgarh', 'Begun', 'Kapasan', 'Mavli'],
+      Churu: ['Churu', 'Ratangarh', 'Sardarshahar', 'Taranagar'],
+      Dausa: ['Dausa', 'Lalsot', 'Lawan', 'Baswa'],
+      Dholpur: ['Dholpur', 'Bari', 'Sohagaon', 'Rajakhera'],
+      Dungarpur: ['Dungarpur', 'Aspur', 'Sagwara', 'Banswara'],
+      Hanumangarh: ['Hanumangarh', 'Nohar', 'Rawatsar', 'Pilibanga'],
+      Jaipur: ['Jaipur', 'Sanganer', 'Amer', 'Bagru'],
+      Jaisalmer: ['Jaisalmer', 'Pokhran', 'Lathi', 'Balesar'],
+      Jalore: ['Jalore', 'Sanchore', 'Ahore', 'Bhadrajun'],
+      Jhalawar: ['Jhalawar', 'Pirawa', 'Bhagwanpura', 'Manoharthana'],
+      Jhunjhunu: ['Jhunjhunu', 'Nawalgarh', 'Sikar', 'Udaipurwati'],
+      Jodhpur: ['Jodhpur', 'Osian', 'Phalodi', 'Bilara'],
+      Karauli: ['Karauli', 'Hindaun', 'Suroth', 'Mandrayal'],
+      Kota: ['Kota', 'Ramganj Mandi', 'Keshoraipatan', 'Sawai Madhopur'],
+      Nagaur: ['Nagaur', 'Merta', 'Degana', 'Jayal'],
+      Pali: ['Pali', 'Rani', 'Desuri', 'Sumerpur'],
+      Pratapgarh: ['Pratapgarh', 'Chhoti Sadri', 'Arnod', 'Dhariawad'],
+      Rajsamand: ['Rajsamand', 'Kumbhalgarh', 'Amet', 'Nathdwara'],
+      Sawai_Madhopur: ['Sawai Madhopur', 'Gangapur', 'Bari', 'Karauli'],
+      Sikar: ['Sikar', 'Fatehpur', 'Laxmangarh', 'Neem Ka Thana'],
+      Sirohi: ['Sirohi', 'Pindwara', 'Mount Abu', 'Reodar'],
+      Tonk: ['Tonk', 'Malpura', 'Deoli', 'Todaraisingh'],
+      Udaipur: ['Udaipur', 'Kumbhalgarh', 'Gogunda', 'Rajsamand']
+    }
+  },
+  Sikkim: {
+    districts: {
+      East_Sikkim: ['Gangtok', 'Ravangla', 'Namchi', 'Mangan'],
+      North_Sikkim: ['Mangan', 'Lachen', 'Lachung', 'Phodong'],
+      South_Sikkim: ['Namchi', 'Ravangla', 'Jorethang', 'Melli'],
+      West_Sikkim: ['Gyalshing', 'Pelling', 'Soreng', 'Yuksom']
+    }
+  },
+  TamilNadu: {
+    districts: {
+      Ariyalur: ['Ariyalur', 'Andimadam', 'Sendurai', 'Udayarpalayam'],
+      Chengalpattu: ['Chengalpattu', 'Tambaram', 'Thiruporur', 'Pallavaram'],
+      Chennai: ['Chennai', 'Egmore', 'Mylapore', 'T Nagar'],
+      Coimbatore: ['Coimbatore', 'Mettupalayam', 'Sulur', 'Pollachi'],
+      Cuddalore: ['Cuddalore', 'Panruti', 'Chidambaram', 'Kattumannarkoil'],
+      Dharmapuri: ['Dharmapuri', 'Harur', 'Palacode', 'Pappireddipatti'],
+      Dindigul: ['Dindigul', 'Palani', 'Natham', 'Vedasandur'],
+      Erode: ['Erode', 'Perundurai', 'Sathyamangalam', 'Bhavani'],
+      Kallakurichi: ['Kallakurichi', 'Sankarapuram', 'Chinnasalem', 'Tirukoilur'],
+      Kanchipuram: ['Kanchipuram', 'Sriperumbudur', 'Chengalpattu', 'Uthiramerur'],
+      Kanniyakumari: ['Nagercoil', 'Kanyakumari', 'Padmanabhapuram', 'Agastheeswaram'],
+      Karur: ['Karur', 'Kulithalai', 'Krishnarayapuram', 'Kadavasal'],
+      Krishnagiri: ['Krishnagiri', 'Hosur', 'Pochampalli', 'Denkanikottai'],
+      Madurai: ['Madurai', 'Melur', 'Thirumangalam', 'Usilampatti'],
+      Nagapattinam: ['Nagapattinam', 'Kilvelur', 'Thirukkuvalai', 'Vedaranyam'],
+      Namakkal: ['Namakkal', 'Rasipuram', 'Senthamangalam', 'Thiruchengode'],
+      Perambalur: ['Perambalur', 'Veppanthattai', 'Alathur', 'Kunnam'],
+      Pudukkottai: ['Pudukkottai', 'Aranthangi', 'Alangudi', 'Karaikudi'],
+      Ramanathapuram: ['Ramanathapuram', 'Paramakudi', 'Rameswaram', 'Mudukulathur'],
+      Salem: ['Salem', 'Attur', 'Omalur', 'Mettur'],
+      Sivagangai: ['Sivagangai', 'Manamadurai', 'Kalaiyarkoil', 'Singampunari'],
+      Tenkasi: ['Tenkasi', 'Shenkottai', 'Sankarankovil', 'Alangulam'],
+      Thanjavur: ['Thanjavur', 'Kumbakonam', 'Pattukkottai', 'Orathanadu'],
+      Theni: ['Theni', 'Periyakulam', 'Andipatti', 'Uthamapalayam'],
+      Thiruvallur: ['Thiruvallur', 'Ponneri', 'Uthukkottai', 'Tiruttani'],
+      Thiruvarur: ['Thiruvarur', 'Nannilam', 'Kudavasal', 'Koothanallur'],
+      Thoothukudi: ['Thoothukudi', 'Kovilpatti', 'Tiruchendur', 'Srivaikuntam'],
+      Tiruchirappalli: ['Tiruchirappalli', 'Srirangam', 'Lalgudi', 'Manapparai'],
+      Tirunelveli: ['Tirunelveli', 'Palayamkottai', 'Tenkasi', 'Ambasamudram'],
+      Tiruppur: ['Tiruppur', 'Avinashi', 'Kangeyam', 'Udumalpet'],
+      Tiruvannamalai: ['Tiruvannamalai', 'Arani', 'Cheyyar', 'Vandavasi'],
+      Vellore: ['Vellore', 'Gudiyatham', 'Ambur', 'Tirupattur'],
+      Viluppuram: ['Viluppuram', 'Tindivanam', 'Marakkanam', 'Vanur'],
+      Virudhunagar: ['Virudhunagar', 'Sivakasi', 'Srivilliputhur', 'Rajapalayam']
+    }
+  },
+  Telangana: {
+    Adilabad: ['Adilabad', 'Mancherial', 'Nirmal', 'Boath'],
+    Bhadradri_Kothagudem: ['Kothagudem', 'Bhadrachalam', 'Palwancha', 'Chintoor'],
+    Hyderabad: ['Hyderabad', 'Secunderabad', 'Gachibowli', 'Hitech City'],
+    Jagtial: ['Jagtial', 'Metpally', 'Mallial', 'Korutla'],
+    Jangaon: ['Jangaon', 'Ghanpur', 'Cheriyal', 'Waddicherla'],
+    Jayashankar_Bhupalapally: ['Bhupalapally', 'Chityal', 'Venkatapuram', 'Parkal'],
+    Jogulamba_Gadwal: ['Gadwal', 'Alampur', 'Maddur', 'Kothakota'],
+    Kamareddy: ['Kamareddy', 'Banswada', 'Yellareddy', 'Sirnapally'],
+    Karimnagar: ['Karimnagar', 'Sircilla', 'Jammikunta', 'Huzurabad'],
+    Khammam: ['Khammam', 'Palair', 'Wyra', 'Sathupalli'],
+    Komaram_Bheem_Asifabad: ['Asifabad', 'Sirpur', 'Bejjur', 'Dahegaon'],
+    Mahabubabad: ['Mahabubabad', 'Thorrur', 'Narsampet', 'Tadvai'],
+    Mahabubnagar: ['Mahabubnagar', 'Nagarkurnool', 'Devarakadra', 'Koilkonda'],
+    Mancherial: ['Mancherial', 'Bellampalli', 'Mandamarri', 'Chennur'],
+    Medak: ['Medak', 'Sangareddy', 'Dubbak', 'Papannapet'],
+    Medchal_Malkajgiri: ['Medchal', 'Keesara', 'Shamirpet', 'Alwal'],
+    Mulugu: ['Mulugu', 'Eturunagaram', 'Chintoor', 'Kothagudem'],
+    Nagarkurnool: ['Nagarkurnool', 'Kalwakurthy', 'Achampet', 'Kothakota'],
+    Nalgonda: ['Nalgonda', 'Miryalaguda', 'Suryapet', 'Chilkur'],
+    Narayanpet: ['Narayanpet', 'Balanagar', 'Kosgi', 'Chinnachintakunta'],
+    Nirmal: ['Nirmal', 'Bhainsa', 'Kubeer', 'Kuntala'],
+    Nizamabad: ['Nizamabad', 'Armoor', 'Bodhan', 'Metpally'],
+    Peddapalli: ['Peddapalli', 'Manthani', 'Ramagundam', 'Sulthanabad'],
+    Rajanna_Sircilla: ['Sircilla', 'Vemulawada', 'Boinpalli', 'Ellanthakunta'],
+    Rangareddy: ['Shadnagar', 'Rajendranagar', 'Chevella', 'Gachibowli'],
+    Sangareddy: ['Sangareddy', 'Zaheerabad', 'Patancheru', 'Andole'],
+    Siddipet: ['Siddipet', 'Gajwel', 'Tandur', 'Sircilla'],
+    Suryapet: ['Suryapet', 'Thungathurthy', 'Neredcherla', 'Munagala'],
+    Vikarabad: ['Vikarabad', 'Pargi', 'Parigi', 'Dharur'],
+    Wanaparthy: ['Wanaparthy', 'Pebbair', 'Vangoor', 'Veepanagandla'],
+    Warangal_Rural: ['Warangal', 'Kazipet', 'Chowdur', 'Narsampet'],
+    Warangal_Urban: ['Hanamkonda', 'Warangal', 'Bhupalpally', 'Parkal'],
+    Yadadri_Bhuvanagiri: ['Bhuvanagiri', 'Choutuppal', 'Valigonda', 'Alair']
+  },
+  Tripura: {
+    districts: {
+      Dhalai: ['Ambassa', 'Kamalpur', 'Gandacherra', 'Mungiakami'],
+      Gomati: ['Udaipur', 'Killa', 'Amarpur', 'Karbook'],
+      Khowai: ['Khowai', 'Teliamura', 'Kalyanpur', 'Bishalgarh'],
+      North_Tripura: ['Dharmanagar', 'Kanchanpur', 'Kadamtala', 'Panisagar'],
+      Sepahijala: ['Sonamura', 'Bishalgarh', 'Udaipur', 'Melaghar'],
+      South_Tripura: ['Belonia', 'Sabroom', 'Santirbazar', 'Mungiakami'],
+      Unakoti: ['Kailashahar', 'Kanchanpur', 'Dharmanagar', 'Kumarghat'],
+      West_Tripura: ['Agartala', 'Krishna Nagar', 'Dhalai', 'Jirania']
+    }
+  },
+  UttarPradesh: {
+    districts: {
+      Agra: ['Agra', 'Fatehabad', 'Kheragarh', 'Bah'],
+      Aligarh: ['Aligarh', 'Khair', 'Gabhana', 'Atrauli'],
+      Allahabad_Pradesh: ['Prayagraj', 'Phulpur', 'Soraon', 'Koraon'],
+      Ambedkar_Nagar: ['Akbarpur', 'Tanda', 'Bhiyaon', 'Jalalpur'],
+      Amethi: ['Amethi', 'Gauriganj', 'Jaisinghpur', 'Salon'],
+      Amroha: ['Amroha', 'Hasanpur', 'Dhanaura', 'Gajraula'],
+      Auraiya: ['Auraiya', 'Ajitmal', 'Jaswantnagar', 'Bilhaur'],
+      Azamgarh: ['Azamgarh', 'Martinganj', 'Mubarakpur', 'Sagri'],
+      Bagpat: ['Bagpat', 'Baraut', 'Khekra', 'Meerut'],
+      Bahraich: ['Bahraich', 'Nanpara', 'Payagpur', 'Mahasi'],
+      Ballia: ['Ballia', 'Bairia', 'Belthara', 'Bansdih'],
+      Balrampur: ['Balrampur', 'Tulsipur', 'Utraula', 'Maharajganj'],
+      Banda: ['Banda', 'Atarra', 'Naraini', 'Tindwari'],
+      Barabanki: ['Barabanki', 'Zaidpur', 'Sikanderpur', 'Rudauli'],
+      Bareilly: ['Bareilly', 'Baheri', 'Aonla', 'Bithari Chainpur'],
+      Basti: ['Basti', 'Harraiya', 'Tanda', 'Ramnagar'],
+      Bijnor: ['Bijnor', 'Nagina', 'Dhampur', 'Najibabad'],
+      Bulandshahr: ['Bulandshahr', 'Anupshahr', 'Siana', 'Syana'],
+      Chandauli: ['Chandauli', 'Mughalsarai', 'Saidpur', 'Deo'],
+      Chitrakoot: ['Chitrakoot', 'Karwi', 'Manikpur', 'Rajapur'],
+      Deoria: ['Deoria', 'Rampur Karkhana', 'Barhaj', 'Bhatpar Rani'],
+      Etah: ['Etah', 'Kasganj', 'Awagarh', 'Sakteshwar'],
+      Etawah: ['Etawah', 'Bharthana', 'Saifai', 'Kakadeo'],
+      Ayodhya: ['Ayodhya', 'Rudauli', 'Maharajganj', 'Bhojpur'],
+      Farrukhabad: ['Farrukhabad', 'Kaimganj', 'Fatehgarh', 'Shikohabad'],
+      Fatehpur: ['Fatehpur', 'Koraon', 'Khaga', 'Bindki'],
+      Firozabad: ['Firozabad', 'Shikohabad', 'Tundla', 'Jasrana'],
+      Gautam_Budh_Nagar: ['Noida', 'Greater Noida', 'Dadri', 'Jewar'],
+      Ghaziabad: ['Ghaziabad', 'Muradnagar', 'Modinagar', 'Loni'],
+      Ghazipur: ['Ghazipur', 'Zamania', 'Mohammadabad', 'Saidpur'],
+      Gonda: ['Gonda', 'Mankapur', 'Colonelganj', 'Katra'],
+      Gorakhpur: ['Gorakhpur', 'Sahajanwa', 'Pipraich', 'Campierganj'],
+      Hamirpur_UP: ['Hamirpur', 'Mahoba', 'Dhanaura', 'Charkhari'],
+      Hapur: ['Hapur', 'Garhmukteshwar', 'Dhaulana', 'Hathras'],
+      Hardoi: ['Hardoi', 'Sandi', 'Shahabad', 'Bilgram'],
+      Hathras: ['Hathras', 'Sadabad', 'Sikandrabad', 'Aligarh'],
+      Jalaun: ['Orai', 'Konch', 'Kalpi', 'Mauranipur'],
+      Jaunpur: ['Jaunpur', 'Shahganj', 'Mariahu', 'Machhlishahr'],
+      Jhansi: ['Jhansi', 'Mauranipur', 'Babina', 'Chhatarpur'],
+      Kannauj: ['Kannauj', 'Tirwa', 'Chhibramau', 'Mati'],
+      Kanpur_Dehat: ['Akbarpur', 'Bhognipur', 'Rasoolabad', 'Derapur'],
+      Kanpur_Nagar: ['Kanpur', 'Govind Nagar', 'Kalyanpur', 'Ghatampur'],
+      Kasganj: ['Kasganj', 'Patiali', 'Sikandra Rao', 'Nawabganj'],
+      Kaushambi: ['Manjhanpur', 'Chail', 'Bhadau', 'Kundarkhi'],
+      Kheri: ['Lakhimpur Kheri', 'Mailani', 'Gola Gokarannath', 'Nighasan'],
+      Kushinagar: ['Kushinagar', 'Padrauna', 'Khadda', 'Hata'],
+      Lalitpur_UP: ['Lalitpur', 'Talbehat', 'Mahroni', 'Madawara'],
+      Lucknow: ['Lucknow', 'Malihabad', 'Bakshi Ka Talab', 'Mohammadabad'],
+      Maharajganj: ['Maharajganj', 'Sadar', 'Pipraich', 'Nautanwa'],
+      Mahoba: ['Mahoba', 'Charkhari', 'Kakora', 'Babina'],
+      Mainpuri: ['Mainpuri', 'Karhal', 'Kishni', 'Bhongaon'],
+      Mathura: ['Mathura', 'Vrindavan', 'Govardhan', 'Chhata'],
+      Mau: ['Mau', 'Shahganj', 'Ghosi', 'Gopalpur'],
+      Meerut: ['Meerut', 'Sardhana', 'Daurala', 'Kharkhoda'],
+      Mirzapur: ['Mirzapur', 'Chunar', 'Vindhyachal', 'Robertsganj'],
+      Moradabad: ['Moradabad', 'Thakurdwara', 'Bilari', 'Chandausi'],
+      Muzaffarnagar: ['Muzaffarnagar', 'Khatauli', 'Budhana', 'Kairana'],
+      Pilibhit: ['Pilibhit', 'Bisalpur', 'Barkhera', 'Puranpur'],
+      Pratapgarh_UP: ['Pratapgarh', 'Kunda', 'Raniganj', 'Rajapur'],
+      Raebareli: ['Raebareli', 'Unchahar', 'Salon', 'Dalmau'],
+      Rampur_UP: ['Rampur', 'Tanda', 'Bilaspur', 'Milak'],
+      Saharanpur: ['Saharanpur', 'Nakud', 'Behat', 'Chilkana Sultanpur'],
+      Sambhal: ['Sambhal', 'Chandausi', 'Asmoli', 'Bhimnagar'],
+      Sant_Kabir_Nagar: ['Bansi', 'Mehdawal', 'Khalilabad', 'Tanda'],
+      Shahjahanpur: ['Shahjahanpur', 'Tilhar', 'Powayan', 'Katra'],
+      Shravasti: ['Bhinga', 'Tulsipur', 'Balrampur', 'Shrawasti'],
+      Sitapur: ['Sitapur', 'Misrikh', 'Sidhauli', 'Laharpur'],
+      Sonbhadra: ['Robertsganj', 'Obra', 'Ghorawal', 'Churk'],
+      Sultanpur: ['Sultanpur', 'Kadipur', 'Kurebhar', 'Jaisinghpur'],
+      Unnao: ['Unnao', 'Bangarmau', 'Safipur', 'Hasanganj'],
+      Varanasi: ['Varanasi', 'Sarnath', 'Ramnagar', 'Chiraigaon']
+    }
+  },
+  Uttarakhand: {
+    districts: {
+      Almora: ['Almora', 'Ranikhet', 'Dwarahat', 'Bhikiyasain'],
+      Bageshwar: ['Bageshwar', 'Kapkot', 'Kanda', 'Kandoli'],
+      Chamoli: ['Chamoli', 'Joshimath', 'Gopeshwar', 'Nandprayag'],
+      Champawat: ['Champawat', 'Pati', 'Barakot', 'Lohaghat'],
+      Dehradun: ['Dehradun', 'Rishikesh', 'Mussoorie', 'Vikasnagar'],
+      Haridwar: ['Haridwar', 'Laksar', 'Roorkee', 'Jwalapur'],
+      Nainital: ['Nainital', 'Haldwani', 'Ramnagar', 'Almora'],
+      Pauri_Garhwal: ['Pauri', 'Kotdwara', 'Chamba', 'Chakrata'],
+      Pithoragarh: ['Pithoragarh', 'Dharchula', 'Didihat', 'Munsiari'],
+      Rudraprayag: ['Rudraprayag', 'Karnaprayag', 'Chinyalisaur', 'Agastyamuni'],
+      Tehri_Garhwal: ['Tehri', 'New Tehri', 'Pratapnagar', 'Chamba'],
+      Udham_Singh_Nagar: ['Haldwani', 'Rudrapur', 'Kichha', 'Pantnagar'],
+      Uttarkashi: ['Uttarkashi', 'Gangotri', 'Yamunotri', 'Harsil']
+    }
+  },
+  WestBengal: {
+    districts: {
+      Alipurduar: ['Alipurduar', 'Falakata', 'Jaigaon', 'Kalchini'],
+      Bankura: ['Bankura', 'Khatra', 'Raipur', 'Bishnupur'],
+      Birbhum: ['Suri', 'Rampurhat', 'Bolpur', 'Nalhati'],
+      Cooch_Behar: ['Cooch Behar', 'Dinhata', 'Tufanganj', 'Mathabhanga'],
+      Darjeeling: ['Darjeeling', 'Siliguri', 'Kalimpong', 'Kurseong'],
+      Dakshin_Dinajpur: ['Balurghat', 'Gangarampur', 'Buniadpur', 'Hili'],
+      Hooghly: ['Chinsurah', 'Serampore', 'Bandel', 'Arambagh'],
+      Howrah: ['Howrah', 'Bally', 'Uluberia', 'Amta'],
+      Jalpaiguri: ['Jalpaiguri', 'Alipurduar', 'Dhupguri', 'Malbazar'],
+      Jhargram: ['Jhargram', 'Binpur', 'Gopiballavpur', 'Belpahari'],
+      Kalimpong: ['Kalimpong', 'Pedong', 'Gorubathan', 'Lava'],
+      Kolkata: ['Kolkata', 'Ballygunge', 'Park Street', 'Salt Lake'],
+      Maldah: ['Maldah', 'English Bazar', 'Chanchal', 'Gazole'],
+      Murshidabad: ['Berhampore', 'Murshidabad', 'Domkal', 'Beldanga'],
+      Nadia: ['Krishnanagar', 'Ranaghat', 'Kalyani', 'Nabadwip'],
+      North_24_Parganas: ['Barasat', 'Bangaon', 'Basirhat', 'Habra'],
+      Paschim_Mednipur: ['Mednipur', 'Tamluk', 'Haldia', 'Ghatal'],
+      Purba_Mednipur: ['Tamluk', 'Haldia', 'Contai', 'Egra'],
+      Purulia: ['Purulia', 'Ranchi', 'Balarampur', 'Manbazar'],
+      South_24_Parganas: ['Alipore', 'Diamond Harbour', 'Canning', 'Bhangar'],
+      Uttar_Dinajpur: ['Raiganj', 'Islampur', 'Kaliaganj', 'Kaliyaganj']
+    }
+  }
+};
+
+
+const VolunteerRegistration = () => {
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [password, setPassword] = useState('');
+  const [rePassword, setRePassword] = useState('');
+  const [secureText, setSecureText] = useState(true);
+  const [secureText2, setSecureText2] = useState(true);
+  const [gender, setGender] = useState('Male');
+  const [dob, setDob] = useState('');
+  const [address, setAddress] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [qualification, setQualification] = useState('');
+  const [state, setState] = useState('');
+  const [district, setDistrict] = useState('');
+  const [city, setCity] = useState('');
+  const [language, setLanguage] = useState('');
+  const [agree, setAgree] = useState(false);
+  const [name, setName] = useState('');
+
+  const navigation = useNavigation();
+
+//corrected one
+const handleRegister = async () => {
+  if (!agree) {
+    alert('Please agree to the privacy policy');
+    return;
+  }
+
+  try {
+    
+    await AsyncStorage.setItem(
+      "userData",
+      JSON.stringify({
+        name: name,        
+        role: "Volunteer",
+        email: email,
+        mobile: mobile
+      })
+    );
+
+    alert('Registered Successfully!');
+
+    // Navigate to Volunteer Home
+    navigation.reset({
+  index: 0,
+  routes: [{ name: 'ScribeHomeScreen', params: { role: 'Volunteer' } }],
+});
+
+
+  } catch (error) {
+    console.log("Error saving user data:", error);
+  }
+};
+
+
+  const handleBackPress = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('RoleSelectionScreen');
+    }
+  };
+
+
+
+  const districts = state ? Object.keys(locationData[state].districts) : [];
+  const cities = state && district ? locationData[state].districts[district] : [];
+
+  return (
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#e2b9d4ff' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+
+
+      <View style={{ flex: 1 }}>
+        {/* Back Button */}
+        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+          <Icon2 name="arrow-back" size={26} color="#000" />
+        </TouchableOpacity>
+
+        {/* Scrollable form */}
+        {/* <View style={{ flex: 1 }}> */}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+
+
+
+
+          <Text style={styles.title}>Volunteer Registration</Text>
+          //new added
+<TextInput style={styles.input}
+  placeholder="Full Name"
+  placeholderTextColor="#666"
+  value={name}
+  onChangeText={setName}
+/>
+
+          <TextInput style={styles.input} placeholder="Email Address" placeholderTextColor="#666" value={email} onChangeText={setEmail} />
+          <TextInput style={styles.input} placeholder="Mobile Number" placeholderTextColor="#666" value={mobile} onChangeText={setMobile} keyboardType="numeric" />
+
+          <View style={styles.passwordContainer}>
+            <TextInput style={styles.inputPassword} placeholder="New Password" placeholderTextColor="#666" secureTextEntry={secureText} value={password} onChangeText={setPassword} />
+            <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.eyeIcon}>
+              <Icon1 name={secureText ? 'eye-off' : 'eye'} size={20} color="gray" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.passwordContainer}>
+            <TextInput style={styles.inputPassword} placeholder="Re-type New Password" placeholderTextColor="#666" secureTextEntry={secureText2} value={rePassword} onChangeText={setRePassword} />
+            <TouchableOpacity onPress={() => setSecureText2(!secureText2)} style={styles.eyeIcon}>
+              <Icon3 name={secureText2 ? 'eye-off' : 'eye'} size={20} color="gray" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Gender: </Text>
+            <TouchableOpacity onPress={() => setGender('Male')}><Text style={gender === 'Male' ? styles.radioSelected : styles.radio}>⭘ Male</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setGender('Female')}><Text style={gender === 'Female' ? styles.radioSelected : styles.radio}>⭘ Female</Text></TouchableOpacity>
+          </View>
+
+          <TextInput style={styles.input} placeholder="Date of Birth (DD/MM/YYYY)" placeholderTextColor="#666" value={dob} onChangeText={setDob} />
+          <TextInput style={styles.input} placeholder="Address" placeholderTextColor="#666" value={address} onChangeText={setAddress} />
+          <TextInput style={styles.input} placeholder="Pin Code" placeholderTextColor="#666" value={pincode} onChangeText={setPincode} keyboardType="numeric" />
+          <TextInput style={styles.input} placeholder="Qualification" placeholderTextColor="#666" value={qualification} onChangeText={setQualification} />
+
+          <CustomSelect label="Select State" options={Object.keys(locationData).sort()} selected={state} onSelect={(val) => { setState(val); setDistrict(''); setCity(''); }} />
+          <CustomSelect label="Select District" options={districts} selected={district} onSelect={(val) => { setDistrict(val); setCity(''); }} />
+          <CustomSelect label="Select City" options={cities} selected={city} onSelect={setCity} />
+          <CustomSelect label="Language Known to Write" options={['English', 'Kannada', 'Telugu', 'Hindi', 'Tamil']} selected={language} onSelect={setLanguage} />
+
+          <TouchableOpacity style={styles.checkboxContainer} onPress={() => setAgree(!agree)}>
+            <View style={[styles.customCheckbox, { backgroundColor: agree ? '#4e1372ff' : 'white' }]} />
+            <Text>I have read the <Text style={styles.link}>privacy policy</Text></Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={handleRegister}><Text style={styles.buttonText}>Register</Text></TouchableOpacity>
+        </ScrollView>
+      </View>
+
+    </KeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, backgroundColor: '#e2b9d4ff' },
+  title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 39, top: 26 },
+  input: { borderBottomWidth: 1, borderBottomColor: '#4e1372ff', paddingVertical: 8, marginBottom: 15 },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center' },
+  inputPassword: { flex: 1, borderBottomWidth: 1, borderBottomColor: '#4e1372ff', paddingVertical: 8, marginBottom: 15 },
+  eyeIcon: { position: 'absolute', right: 10, top: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  label: { fontWeight: 'bold', marginBottom: 5, },
+  radio: { marginHorizontal: 10 },
+  radioSelected: { marginHorizontal: 10, fontWeight: 'bold', color: 'green' },
+  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  customCheckbox: { width: 20, height: 20, borderWidth: 1, borderColor: 'gray', marginRight: 10, },
+  button: { backgroundColor: 'teal', padding: 15, borderRadius: 5, marginTop: 20, backgroundColor: '#4e1372ff' },
+  buttonText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
+  link: { color: 'blue', textDecorationLine: 'underline' },
+  selectButton: { borderWidth: 1, borderColor: '#4e1372ff', padding: 10, borderRadius: 5 },
+  modalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center' },
+  modalContainer: { marginHorizontal: 30, backgroundColor: '#fff', borderRadius: 10, maxHeight: 300 },
+  optionButton: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  optionText: { fontSize: 16 },
+  backButton: {
+    position: 'absolute',
+    top: 37,   // adjust if needed
+    left: 16,
+    zIndex: 10,
+
+  },
+  scrollContainer: {
+    padding: 20,
+    // so back button doesn’t overlap
+    paddingTop: 1
+  }
+
+});
+
+export default VolunteerRegistration;
+
+
+
+//ScribeHomeScreen.jsx
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+export default function ScribeHomeScreen() {
+    const navigation = useNavigation();
+    const route = useRoute();
+
+    // Receive role from navigation
+    const role = route?.params?.role || "Visually Impaired";  // default
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+
+                {/* Back Button */}
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigation.navigate('SplashScreen');
+                        }
+                    }}
+                >
+                    <Ionicons name="arrow-back" size={26} color="#000000ff" />
+                </TouchableOpacity>
+
+                {/* Settings */}
+                <View style={styles.settingsContainer}>
+                    <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+                        <Ionicons name="settings-outline" size={28} color="#000" />
+                    </TouchableOpacity>
+                </View>
+
+                {/* Dynamic Title */}
+                <Text style={styles.title}>
+                    {role === "Visually Impaired" ? "Scribe Main Page" : "Volunteer Main Page"}
+                </Text>
+
+                {/* Subtitle only for visually impaired */}
+                {role === "Visually Impaired" && (
+                    <Text style={styles.subtitle}>
+                        Scribe can search for volunteers and access study material
+                    </Text>
+                )}
+
+                {/* Buttons Based on Role */}
+
+                {/* Common Buttons for BOTH roles */}
+                <TouchableOpacity
+                    style={styles.buttonLarge}
+                    onPress={() => navigation.navigate('SearchScribeScreen')}
+                >
+                    <Icon name="search-outline" size={24} color="#fff" />
+                    <Text style={styles.buttonText}>Search for Scribe</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.buttonLarge}
+                    onPress={() =>
+                        navigation.navigate('Chat', {
+                            role,
+                            chatId: 'chat_001',
+                            userName: "Sneha Pote",
+                            otherUserName: role === "Volunteer" ? "Visually Impaired User" : "Volunteer",
+                        })
+                    }
+                >
+                    <Ionicons name="chatbubbles-outline" size={24} color="#fff" />
+                    {/* <Text style={styles.buttonText}>Chat with Volunteer</Text> */}
+                    <Text style={styles.buttonText}>
+                        {role === "Volunteer" ? "Chat with Scribe" : "Chat with Volunteer"}
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.buttonLarge}
+                    onPress={() => navigation.navigate('StudyMaterialScreen')}
+                >
+                    <Icon name="book-outline" size={24} color="#fff" />
+                    <Text style={styles.buttonText}>Study Material</Text>
+                </TouchableOpacity>
+
+                {/* Volunteer-only button (Upload Notes) */}
+                {role === "Volunteer" && (
+                    <TouchableOpacity
+                        style={styles.buttonLarge}
+                        onPress={() => navigation.navigate('UploadNotesScreen')}
+                    >
+                        <Icon name="cloud-upload-outline" size={24} color="#fff" />
+                        <Text style={styles.buttonText}>Upload Notes</Text>
+                    </TouchableOpacity>
+                )}
+
+                {/* View Uploads (visible for both roles) */}
+                <TouchableOpacity
+                    style={styles.buttonLarge}
+                    onPress={() => navigation.navigate('ViewUploadsScreen')}
+                >
+                    <Icon name="folder-open-outline" size={24} color="#fff" />
+                    <Text style={styles.buttonText}>View Uploads</Text>
+                </TouchableOpacity>
+
+            </ScrollView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#ffffffff',
+    },
+    scrollContainer: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: '#000000ff',
+        marginVertical: 10,
+        marginTop: 10
+    },
+    subtitle: {
+        fontSize: 16,
+        color: '#000000ff',
+        textAlign: 'center',
+        marginBottom: 30,
+    },
+    settingsContainer: {
+        position: "absolute",
+        top: 40,
+        right: 20,
+        zIndex: 20,
+    },
+    buttonLarge: {
+        backgroundColor: '#6A0DAD',
+        width: '90%',
+        paddingVertical: 50,
+        borderRadius: 25,
+        alignItems: 'center',
+        marginVertical: 10,
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 20,
+        marginLeft: 10,
+        fontWeight: '600',
+    },
+    backButton: {
+        top: 20,
+        right: 165
+    }
+});
+
+
+
+//SearchScribeScreen.jsx
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Modal,
+  FlatList,
+  Alert
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+
+
+const CustomSelect = ({ label, options, selected, onSelect }) => {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <View style={{ marginBottom: 15 }}>
+
+      <Text style={styles.label}>{label}</Text>
+
+      <TouchableOpacity
+        style={styles.selectButton}
+        onPress={() => setVisible(true)}
+      >
+        <Text>{selected || 'Select'}</Text>
+      </TouchableOpacity>
+
+
+
+      <Modal visible={visible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+
+          {/* BACKGROUND CLICK */}
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            onPress={() => setVisible(false)}
+          />
+
+          {/* MODAL BOX ON TOP */}
+          <View style={styles.modalContent}>
+            <FlatList
+              data={options}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.optionButton}
+                  onPress={() => {
+                    onSelect(item);
+                    setVisible(false);
+                  }}
+                >
+                  <Text style={styles.optionText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+
+        </View>
+      </Modal>
+
+
+
+    </View>
+  );
+};
+
+
+const locationData = {
+  Maharashtra: {
+    districts: {
+      Ahmednagar: ['Ahmednagar', 'Shrirampur', 'Shirdi', 'Pathardi'],
+      Akola: ['Akola', 'Murtizapur', 'Barshitakli'],
+      Amravati: ['Amravati', 'Daryapur', 'Chandur', 'Morshi'],
+      Aurangabad: ['Aurangabad', 'Paithan', 'Gangapur', 'Vaijapur', 'kannad', 'khuldabad', 'phulambri', 'sillod', 'soegaon',],
+      Beed: ['Beed', 'Georai', 'Ashti', 'Kaij'],
+      Bhandara: ['Bhandara', 'Tumsar', 'Sakoli', 'Pauni'],
+      Chandrapur: ['Chandrapur', 'Ballarpur', 'Rajura', 'Warora'],
+      Dhule: ['Dhule', 'Shindkheda', 'Sakri', 'Sindkheda'],
+      Gadchiroli: ['Gadchiroli', 'Chamorshi', 'Aheri', 'Desaiganj'],
+      Gondia: ['Gondia', 'Tirora', 'Arjuni', 'Deori'],
+      Hingoli: ['Hingoli', 'Kalamnuri', 'Aundha', 'Basmath'],
+      Jalgaon: ['Jalgaon', 'Chalisgaon', 'Pachora', 'Bhusawal'],
+      Jalna: ['Jalna', 'Ambad', 'Badnapur', 'Bhokardan'],
+      Kolhapur: ['Kolhapur', 'Ichalkaranji', 'Sangli', 'Hatkanangale'],
+      Latur: ['Latur', 'Udgir', 'Ausa', 'Nilanga'],
+      Mumbai_City: ['South Mumbai', 'Fort', 'Colaba', 'Dadar'],
+      Mumbai_Suburban: ['Andheri', 'Bandra', 'Borivali', 'Kurla', 'Vikhroli'],
+      Nagpur: ['Nagpur', 'Kamptee', 'Umred', 'Hingna'],
+      Nanded: ['Nanded', 'Deglur', 'Loha', 'Mudkhed'],
+      Nandurbar: ['Nandurbar', 'Shahada', 'Taloda', 'Navapur'],
+      Nashik: ['Nashik', 'Malegaon', 'Sinnar', 'Deolali', 'Igatpuri'],
+      Osmanabad: ['Osmanabad', 'Tuljapur', 'Bhoom', 'Paranda'],
+      Palghar: ['Palghar', 'Dahanu', 'Talasari', 'Vikramgad'],
+      Parbhani: ['Parbhani', 'Jintur', 'Gangakhed', 'Purna'],
+      Pune: ['Pune', 'Pimpri-Chinchwad', 'Baramati', 'Bhor', 'Shirur'],
+      Raigad: ['Alibag', 'Pen', 'Mahad', 'Roha'],
+      Ratnagiri: ['Ratnagiri', 'Chiplun', 'Guhagar', 'Lanja'],
+      Sangli: ['Sangli', 'Miraj', 'Palus', 'Jaysingpur'],
+      Satara: ['Satara', 'Wai', 'Koregaon', 'Karad'],
+      Sindhudurg: ['Sindhudurg', 'Malvan', 'Kankavli', 'Sawantwadi'],
+      Solapur: ['Solapur', 'Pandharpur', 'Barshi', 'Mangalwedha'],
+      Thane: ['Thane', 'Kalyan', 'Ulhasnagar', 'Bhiwandi', 'Vasai'],
+      Wardha: ['Wardha', 'Arvi', 'Deoli', 'Hinganghat'],
+      Washim: ['Washim', 'Karanja', 'Mangrulpir', 'Malegaon'],
+      Yavatmal: ['Yavatmal', 'Pusad', 'Darwha', 'Mahagaon']
+    }
+  },
+
+  AndhraPradesh: {
+    districts: {
+      Anantapur: ['Anantapur', 'Guntakal', 'Hindupur', 'Dharmavaram'],
+      Chittoor: ['Chittoor', 'Tirupati', 'Pileru', 'Punganur'],
+      East_Godavari: ['Kakinada', 'Rajahmundry', 'Peddapuram', 'Rampachodavaram'],
+      Guntur: ['Guntur', 'Tenali', 'Narasaraopet', 'Ponnur'],
+      Krishna: ['Vijayawada', 'Machilipatnam', 'Gudivada', 'Nuzvid'],
+      Kurnool: ['Kurnool', 'Nandyal', 'Adoni', 'Allagadda'],
+      Prakasam: ['Ongole', 'Markapur', 'Chirala', 'Kandukur'],
+      Srikakulam: ['Srikakulam', 'Palasa', 'Tekkali', 'Pathapatnam'],
+      Visakhapatnam: ['Visakhapatnam', 'Bheemunipatnam', 'Anakapalle', 'Pendurti'],
+      Vizianagaram: ['Vizianagaram', 'Parvathipuram', 'Gajapathinagaram', 'Srungavarapukota'],
+      West_Godavari: ['Eluru', 'Palakollu', 'Narasapuram', 'Bhimavaram'],
+      YSR_Kadapa: ['Kadapa', 'Proddatur', 'Jammalamadugu', 'Pulivendula']
+
+    }
+  },
+  ArunachalPradesh: {
+    districts: {
+      Tawang: ['Tawang', 'Dirang', 'Jang', 'Lumla'],
+      West_Kameng: ['Bomdila', 'Bhalukpong', 'Sartung', 'Rupa'],
+      East_Kameng: ['Seppa', 'Bameng', 'Bishing', 'Chayangtajo'],
+      Papum_Pare: ['Itanagar', 'Naharlagun', 'Doimukh', 'Sagalee'],
+      Kurung_Kumey: ['Koloriang', 'Sarli', 'Damin', 'Taliha'],
+      Kra_Daadi: ['Yingkiong', 'Pipsorang', 'Longding', 'Sarli'],
+      Lower_Subansiri: ['Ziro', 'Daporijo', 'Yachuli', 'Dumporijo'],
+      Upper_Subansiri: ['Daporijo', 'Taliha', 'Payum', 'Kaying'],
+      West_Siang: ['Aalo', 'Basar', 'Rumgong', 'Siyum'],
+      East_Siang: ['Pasighat', 'Meka', 'Bilat', 'Tuting'],
+      Siang: ['Along', 'Boleng', 'Geku', 'Ruksin'],
+      Upper_Siang: ['Daporijo', 'Raga', 'Mechuka', 'Yingkiong'],
+      Lower_Siang: ['Likabali', 'Mariyang', 'Along', 'Lilong'],
+      Lower_Dibang_Valley: ['Roing', 'Anini', 'Hunli', 'Dibung'],
+      Upper_Dibang_Valley: ['Meka', 'Anini', 'Hayuliang', 'Etalin'],
+      Lower_Pasir: ['Pasighat', 'Tuting', 'Mariyang'],
+      Upper_Pasir: ['Tezu', 'Hayuliang', 'Chowkham']
+    }
+  },
+  Assam: {
+    districs: {
+      Baksa: ['Baksa', 'Mushalpur', 'Barama'],
+      Barpeta: ['Barpeta', 'Sorbhog', 'Chenga'],
+      Biswanath: ['Biswanath', 'Gohpur', 'Bamuni'],
+      Bongaigaon: ['Bongaigaon', 'Abhayapuri', 'Salakati'],
+      Cachar: ['Silchar', 'Hailakandi', 'Sadar'],
+      Charaideo: ['Sivasagar', 'Sonari', 'Namrup'],
+      Chirang: ['Chirang', 'Kajalgaon', 'Baihata'],
+      Darrang: ['Mangaldoi', 'Dalgaon', 'Bhergaon'],
+      Dhemaji: ['Dhemaji', 'Jonai', 'Gohpur'],
+      Dibrugarh: ['Dibrugarh', 'Tinsukia', 'Naharkatia'],
+      Goalpara: ['Goalpara', 'Dudhnoi', 'Dalu'],
+      Golaghat: ['Golaghat', 'Dergaon', 'Furkating'],
+      Hailakandi: ['Hailakandi', 'Haflong', 'Lala'],
+      Jorhat: ['Jorhat', 'Mariani', 'Titabar'],
+      Kamrup: ['Guwahati', 'Bamunigaon', 'Hajo'],
+      Kamrup_Metro: ['Guwahati', 'Amingaon', 'Beltola'],
+      Karbi_Anglong: ['Diphu', 'Hamren', 'Dongkamukam'],
+      Karimganj: ['Karimganj', 'Patharkandi', 'Badarpur'],
+      Kokrajhar: ['Kokrajhar', 'Dotma', 'Baska'],
+      Lakhimpur: ['North Lakhimpur', 'Dhuliajan', 'Bihpuria'],
+      Majuli: ['Majuli', 'Kamalabari', 'Salmora'],
+      Morigaon: ['Morigaon', 'Jagiroad', 'Bhuragaon'],
+      Nagaon: ['Nagaon', 'Hojai', 'Kampur'],
+      Nalbari: ['Nalbari', 'Tihu', 'Madhyamgram'],
+      Sivasagar: ['Sivasagar', 'Nazira', 'Charaideo'],
+      Sonitpur: ['Tezpur', 'Gohpur', 'Dhekiajuli'],
+      Tinsukia: ['Tinsukia', 'Dibrugarh', 'Duliajan'],
+      Udalguri: ['Udalguri', 'Tangla', 'Harisinga']
+    }
+  },
+  Bihar: {
+    districts: {
+      Araria: ['Araria', 'Forbesganj', 'Areraj'],
+      Arwal: ['Arwal', 'Karpi', 'Sasaram'],
+      Aurangabad: ['Aurangabad', 'Rafiganj', 'Daudnagar'],
+      Banka: ['Banka', 'Amarpur', 'Katoria'],
+      Begusarai: ['Begusarai', 'Barauni', 'Cheria Bariarpur'],
+      Bhagalpur: ['Bhagalpur', 'Naugachhia', 'Kahalgaon'],
+      Bhojpur: ['Ara', 'Bihiya', 'Jagdishpur'],
+      Buxar: ['Buxar', 'Dumraon', 'Rajpur'],
+      Darbhanga: ['Darbhanga', 'Baheri', 'Madhubani'],
+      East_Champaran: ['Motihari', 'Chakia', 'Raxaul'],
+      Gaya: ['Gaya', 'Tekari', 'Manpur'],
+      Gopalganj: ['Gopalganj', 'Uchkagaon', 'Kuchaikote'],
+      Jamui: ['Jamui', 'Chakai', 'Laxmipur'],
+      Jehanabad: ['Jehanabad', 'Makhdumpur', 'Koath'],
+      Kaimur: ['Bhabua', 'Ramgarh', 'Mohania'],
+      Katihar: ['Katihar', 'Barsoi', 'Kursela'],
+      Khagaria: ['Khagaria', 'Mansi', 'Parbatta'],
+      Kishanganj: ['Kishanganj', 'Dewanganj', 'Thakurganj'],
+      Lakhisarai: ['Lakhisarai', 'Barahiya', 'Surajgarha'],
+      Madhepura: ['Madhepura', 'Singhwara', 'Udaipur'],
+      Madhubani: ['Madhubani', 'Benipatti', 'Laukahi'],
+      Munger: ['Munger', 'Bariarpur', 'Sultanganj'],
+      Muzaffarpur: ['Muzaffarpur', 'Motipur', 'Sitamarhi'],
+      Nalanda: ['Bihar Sharif', 'Rajgir', 'Hilsa'],
+      Nawada: ['Nawada', 'Rajauli', 'Warisaliganj'],
+      Patna: ['Patna', 'Fatuha', 'Danapur'],
+      Purnia: ['Purnia', 'Banmankhi', 'Dhamdaha'],
+      Rohtas: ['Sasaram', 'Dehri', 'Bhabua'],
+      Saharsa: ['Saharsa', 'Simri Bakhtiarpur', 'Madhepura'],
+      Samastipur: ['Samastipur', 'Mohiuddinagar', 'Marhaura'],
+      Saran: ['Chhapra', 'Mashrakh', 'Dighwara'],
+      Sheikhpura: ['Sheikhpura', 'Chewara', 'Amla'],
+      Sheohar: ['Sheohar', 'Mohiuddinagar', 'Parsauni'],
+      Sitamarhi: ['Sitamarhi', 'Bairgania', 'Suppi'],
+      Siwan: ['Siwan', 'Gop', 'Mairwa'],
+      Supaul: ['Supaul', 'Triveniganj', 'Nirmali'],
+      Vaishali: ['Hajipur', 'Mahua', 'Desari'],
+      West_Champaran: ['Bettiah', 'Narkatiaganj', 'Chakia']
+    }
+  },
+  Chhatisgarh: {
+    districts: {
+      Balod: ['Balod', 'Balod Bazar', 'Dondi'],
+      Baloda_Bazar: ['Baloda Bazar', 'Bhatapara', 'Simga'],
+      Balrampur: ['Balrampur', 'Barsur', 'Rajnandgaon'],
+      Bastar: ['Jagdalpur', 'Chitrakote', 'Baderajpur'],
+      Bemetara: ['Bemetara', 'Dhamtari', 'Kawardha'],
+      Bijapur: ['Bijapur', 'Bagicha', 'Kondagaon'],
+      Bilaspur: ['Bilaspur', 'Udaypur', 'Takhatpur'],
+      Dantewada: ['Dantewada', 'Geedam', 'Kondagaon'],
+      Dhamtari: ['Dhamtari', 'Nagri', 'Tirathgarh'],
+      Durg: ['Durg', 'Bhilai', 'Dhamdha'],
+      Gariyaband: ['Gariyaband', 'Mainpur', 'Bhandara'],
+      Janjgir_Champa: ['Janjgir', 'Champa', 'Akaltara'],
+      Jashpur: ['Jashpur', 'Kunkuri', 'Lalgaon'],
+      Kabirdham: ['Kawardha', 'Palari', 'Lormi'],
+      Kanker: ['Kanker', 'Pakhanjur', 'Narharpur'],
+      Kondagaon: ['Kondagaon', 'Bhaismunda', 'Nandgaon'],
+      Korba: ['Korba', 'Katghora', 'Podi'],
+      Koriya: ['Baikunthpur', 'Manendragarh', 'Lormi'],
+      Mahasamund: ['Mahasamund', 'Saraipali', 'Basna'],
+      Mungeli: ['Mungeli', 'Lormi', 'Beltara'],
+      Narayanpur: ['Narayanpur', 'Odgi', 'Halma'],
+      Raigarh: ['Raigarh', 'Karanjia', 'Gharghoda'],
+      Raipur: ['Raipur', 'Dhamtari', 'Arang'],
+      Rajnandgaon: ['Rajnandgaon', 'Dongargarh', 'Chhuikhadan'],
+      Sukma: ['Sukma', 'Konta', 'Palnar'],
+      Surajpur: ['Surajpur', 'Premnagar', 'Bhairamgarh'],
+      Surguja: ['Ambikapur', 'Bade Bazar', 'Mainpat']
+    }
+  },
+  Goa: {
+    districts: {
+      North_Goa: ['Panaji', 'Mapusa', 'Bicholim', 'Pernem'],
+      South_Goa: ['Margao', 'Vasco da Gama', 'Ponda', 'Quepem']
+    }
+  },
+  Gujarat: {
+    districts: {
+      Ahmedabad: ['Ahmedabad', 'Maninagar', 'Bapunagar', 'Navrangpura'],
+      Amreli: ['Amreli', 'Lathi', 'Savarkundla', 'Rajula'],
+      Anand: ['Anand', 'Petlad', 'Borsad', 'Khambhat'],
+      Aravalli: ['Modasa', 'Malpur', 'Dhansura', 'Bayad'],
+      Banaskantha: ['Palanpur', 'Deesa', 'Tharad', 'Dantiwada'],
+      Bharuch: ['Bharuch', 'Ankleshwar', 'Jambusar', 'Hansot'],
+      Bhavnagar: ['Bhavnagar', 'Ghogha', 'Mahuva', 'Botad'],
+      Botad: ['Botad', 'Gadhada', 'Gariadhar', 'Umrala'],
+      Chhota_Udepur: ['Chhota Udepur', 'Jetpur Pavi', 'Chhotaudepur'],
+      Dahod: ['Dahod', 'Limkheda', 'Jhalod', 'Sundeli'],
+      Dang: ['Ahwa', 'Waghai', 'Subir'],
+      Gandhinagar: ['Gandhinagar', 'Kalol', 'Mansa', 'Panchmahal'],
+      Gir_Somnath: ['Veraval', 'Junagadh', 'Kodinar', 'Talala'],
+      Jamnagar: ['Jamnagar', 'Jodiya', 'Dhrol', 'Kalavad'],
+      Junagadh: ['Junagadh', 'Veraval', 'Keshod', 'Talala'],
+      Kheda: ['Nadiad', 'Kheda', 'Matar', 'Kapadvanj'],
+      Mahisagar: ['Balasinor', 'Lunawada', 'Santrampur'],
+      Mehsana: ['Mehsana', 'Visnagar', 'Kheralu', 'Unjha'],
+      Morbi: ['Morbi', 'Wankaner', 'Lodhika', 'Tankara'],
+      Narmada: ['Rajpipla', 'Nandod', 'Tilakwada'],
+      Navsari: ['Navsari', 'Chikhli', 'Vansda', 'Gandevi'],
+      Panchmahal: ['Godhra', 'Kalol', 'Halol', 'Devgadh Baria'],
+      Patan: ['Patan', 'Radhanpur', 'Sidhpur', 'Harij'],
+      Porbandar: ['Porbandar', 'Kutiyana', 'Ranavav'],
+      Rajkot: ['Rajkot', 'Jetpur', 'Jamnagar', 'Upleta'],
+      Sabarkantha: ['Himmatnagar', 'Idar', 'Talod', 'Prantij'],
+      Surat: ['Surat', 'Valsad', 'Navsari', 'Bardoli'],
+      Surendranagar: ['Surendranagar', 'Wadhwan', 'Limbdi', 'Chotila'],
+      Tapi: ['Vyara', 'Songadh', 'Nizar', 'Valod'],
+      Vadodara: ['Vadodara', 'Anand', 'Savli', 'Padra'],
+      Valsad: ['Valsad', 'Umargam', 'Pardi', 'Vapi']
+    }
+  },
+  Haryana: {
+    districs: {
+      Ambala: ['Ambala', 'Naraingarh', 'Barara'],
+      Bhiwani: ['Bhiwani', 'Charkhi Dadri', 'Bawani Khera'],
+      Charkhi_Dadri: ['Charkhi Dadri', 'Badhra', 'Bapora'],
+      Faridabad: ['Faridabad', 'Ballabgarh', 'Bawal'],
+      Fatehabad: ['Fatehabad', 'Ratia', 'Tosham'],
+      Gurugram: ['Gurugram', 'Sohna', 'Pataudi'],
+      Hisar: ['Hisar', 'Hansi', 'Nalwa', 'Adampur'],
+      Jhajjar: ['Jhajjar', 'Bahadurgarh', 'Matanhail'],
+      Jind: ['Jind', 'Safidon', 'Narwana', 'Uchana'],
+      Kaithal: ['Kaithal', 'Pundri', 'Guhla', 'Kalanwali'],
+      Karnal: ['Karnal', 'Assandh', 'Indri', 'Nilokheri'],
+      Kurukshetra: ['Kurukshetra', 'Pehowa', 'Thanesar', 'Shahabad'],
+      Mahendragarh: ['Narnaul', 'Mahendragarh', 'Kanina'],
+      Mewat: ['Nuh', 'Ferozepur Jhirka', 'Nagina'],
+      Palwal: ['Palwal', 'Hodal', 'Prithla'],
+      Panchkula: ['Panchkula', 'Pinjore', 'Morni'],
+      Panipat: ['Panipat', 'Samalkha', 'Israna'],
+      Rewari: ['Rewari', 'Kosli', 'Bawal'],
+      Rohtak: ['Rohtak', 'Meham', 'Sampla'],
+      Sirsa: ['Sirsa', 'Rania', 'Ellenabad'],
+      Sonipat: ['Sonipat', 'Gohana', 'Kharkhoda'],
+      Yamunanagar: ['Yamunanagar', 'Jagadhri', 'Radaur']
+    }
+  },
+  HimachalPradesh: {
+    distrits: {
+      Bilaspur: ['Bilaspur', 'Ghumarwin', 'Bhageri'],
+      Chamba: ['Chamba', 'Dalhousie', 'Khajjhiar'],
+      Hamirpur: ['Hamirpur', 'Nadaun', 'Bhoranj'],
+      Kangra: ['Dharamshala', 'Palampur', 'Kangra'],
+      Kinnaur: ['Rampur', 'Kalpa', 'Reckong Peo'],
+      Kullu: ['Kullu', 'Manali', 'Naggar'],
+      Lahaul_Spas: ['Keylong', 'Losar', 'Sissu'],
+      Mandi: ['Mandi', 'Sundernagar', 'Jogindernagar'],
+      Shimla: ['Shimla', 'Narkanda', 'Theog'],
+      Sirmaur: ['Nahan', 'Paonta Sahib', 'Rajgarh'],
+      Solan: ['Solan', 'Kasauli', 'Nalagarh'],
+      Una: ['Una', 'Amb', 'Bangana']
+    }
+  },
+  Jharkhand: {
+    districts: {
+      Bokaro: ['Bokaro', 'Chas', 'Phusro'],
+      Chatra: ['Chatra', 'Itkhori', 'Simaria'],
+      Deoghar: ['Deoghar', 'Madhupur', 'Babhangaon'],
+      Dhanbad: ['Dhanbad', 'Jharia', 'Ranchi'],
+      Dumka: ['Dumka', 'Shikaripara', 'Jarmundi'],
+      East_Singhbhum: ['Jamshedpur', 'Ghatshila', 'Chakradharpur'],
+      Garhwa: ['Garhwa', 'Ramgarh', 'Bhawanathpur'],
+      Giridih: ['Giridih', 'Dumri', 'Jamua'],
+      Godda: ['Godda', 'Mahagama', 'Pathargama'],
+      Gumla: ['Gumla', 'Basia', 'Bishunpur'],
+      Hazaribagh: ['Hazaribagh', 'Ramgarh', 'Barkagaon'],
+      Jamtara: ['Jamtara', 'Narayanpur', 'Karma'],
+      Khunti: ['Khunti', 'Murhu', 'Karra'],
+      Koderma: ['Koderma', 'Jhumri Tilaiya', 'Barkatha'],
+      Latehar: ['Latehar', 'Balumath', 'Manika'],
+      Lohardaga: ['Lohardaga', 'Kisko', 'Bhandra'],
+      Pakur: ['Pakur', 'Mahespur', 'Hiranpur'],
+      Palamu: ['Daltonganj', 'Chhatarpur', 'Medininagar'],
+      Ramgarh: ['Ramgarh', 'Gola', 'Barkakana'],
+      Ranchi: ['Ranchi', 'Namkum', 'Ormanjhi'],
+      Sahebganj: ['Sahebganj', 'Rajmahal', 'Barharwa'],
+      Seraikela_Kharsawan: ['Seraikela', 'Kharsawan', 'Gamharia'],
+      Simdega: ['Simdega', 'Thethaitangar', 'Bano'],
+      West_Singhbhum: ['Chaibasa', 'Chakradharpur', 'Ghatsila']
+    }
+  },
+  Karnataka: {
+    districts: {
+      Bagalkot: ['Bagalkot', 'Mudhol', 'Badami', 'Jamkhandi'],
+      Ballari: ['Ballari', 'Hospet', 'Sandur', 'Siruguppa'],
+      Belagavi: ['Belagavi', 'Gokak', 'Hukkeri', 'Chikkodi'],
+      Bengaluru_Urban: ['Bengaluru', 'Yelahanka', 'Whitefield', 'Koramangala'],
+      Bengaluru_Rural: ['Nelamangala', 'Devanahalli', 'Hoskote', 'Doddaballapura'],
+      Bidar: ['Bidar', 'Humnabad', 'Bhalki', 'Aurad'],
+      Chamarajanagar: ['Chamarajanagar', 'Kollegal', 'Yelandur'],
+      Chikkamagaluru: ['Chikkamagaluru', 'Mudigere', 'Kadur', 'Tarikere'],
+      Chikkaballapur: ['Chikkaballapur', 'Gauribidanur', 'Bagepalli'],
+      Chitradurga: ['Chitradurga', 'Challakere', 'Hiriyur'],
+      Dakshina_Kannada: ['Mangaluru', 'Puttur', 'Belthangady', 'Sullia'],
+      Davanagere: ['Davanagere', 'Harihar', 'Channagiri', 'Honnali'],
+      Dharwad: ['Dharwad', 'Hubli', 'Navalgund', 'Kalghatgi'],
+      Gadag: ['Gadag', 'Ron', 'Shirhatti', 'Nargund'],
+      Hassan: ['Hassan', 'Sakleshpur', 'Belur', 'Arsikere'],
+      Haveri: ['Haveri', 'Shiggaon', 'Byadgi', 'Hirekerur'],
+      Kalaburagi: ['Kalaburagi', 'Chittapur', 'Sedam', 'Aland'],
+      Kodagu: ['Madikeri', 'Virajpet', 'Somwarpet'],
+      Kolar: ['Kolar', 'Malur', 'Mulbagal', 'Bangarapet'],
+      Koppal: ['Koppal', 'Gangavathi', 'Yelburga', 'Kanakagiri'],
+      Mandya: ['Mandya', 'Maddur', 'Malavalli', 'Srirangapatna'],
+      Mysuru: ['Mysuru', 'Nanjangud', 'Hunsur', 'Heggadadevana Kote'],
+      Raichur: ['Raichur', 'Manvi', 'Shahapur', 'Devadurga'],
+      Ramanagara: ['Ramanagara', 'Channapatna', 'Kanakapura', 'Magadi'],
+      Shivamogga: ['Shivamogga', 'Sagar', 'Hosanagara', 'Soraba'],
+      Tumakuru: ['Tumakuru', 'Gubbi', 'Tiptur', 'Sira'],
+      Udupi: ['Udupi', 'Karkala', 'Kundapura', 'Byndoor'],
+      Uttara_Kannada: ['Karwar', 'Sirsi', 'Bhatkal', 'Haliyal'],
+      Vijayapura: ['Vijayapura', 'Basavana Bagevadi', 'Indi', 'Sindagi'],
+      Yadgir: ['Yadgir', 'Shahapur', 'Wadgera', 'Hangal']
+    }
+  },
+  Kerala: {
+    districts: {
+      Alappuzha: ['Alappuzha', 'Haripad', 'Cherthala', 'Ambalappuzha'],
+      Ernakulam: ['Kochi', 'Aluva', 'Muvattupuzha', 'Perumbavoor'],
+      Idukki: ['Painavu', 'Thodupuzha', 'Devikulam', 'Udumbanchola'],
+      Kannur: ['Kannur', 'Taliparamba', 'Payyannur', 'Thalassery'],
+      Kasaragod: ['Kasaragod', 'Kanhangad', 'Nileshwar', 'Bekal'],
+      Kollam: ['Kollam', 'Karunagappally', 'Kottarakkara', 'Punalur'],
+      Kottayam: ['Kottayam', 'Changanassery', 'Vaikom', 'Pala'],
+      Kozhikode: ['Kozhikode', 'Vatakara', 'Thamarassery', 'Koyilandy'],
+      Malappuram: ['Malappuram', 'Perinthalmanna', 'Tirur', 'Ponnani'],
+      Palakkad: ['Palakkad', 'Ottapalam', 'Chittur', 'Alathur'],
+      Pathanamthitta: ['Pathanamthitta', 'Tiruvalla', 'Adoor', 'Kozhencherry'],
+      Thiruvananthapuram: ['Thiruvananthapuram', 'Neyyattinkara', 'Varkala', 'Attingal'],
+      Thrissur: ['Thrissur', 'Guruvayur', 'Chalakudy', 'Kunnamkulam'],
+      Wayanad: ['Kalpetta', 'Sultan Bathery', 'Mananthavady', 'Meppadi']
+    }
+
+  },
+  MadhyaPradesh: {
+    districts: {
+      Agar_Malwa: ['Agar', 'Malwa', 'Shajapur'],
+      Alirajpur: ['Alirajpur', 'Chandpur', 'Ghatia'],
+      Anuppur: ['Anuppur', 'Pushprajgarh', 'Jaithari'],
+      Ashoknagar: ['Ashoknagar', 'Chanderi', 'Isagarh'],
+      Balaghat: ['Balaghat', 'Lanji', 'Katangi', 'Waraseoni'],
+      Barwani: ['Barwani', 'Sendhwa', 'Rajpur', 'Pansemal'],
+      Betul: ['Betul', 'Athner', 'Bhainsdehi', 'Ghodadongri'],
+      Bhind: ['Bhind', 'Lahar', 'Gohad', 'Ater'],
+      Bhopal: ['Bhopal', 'Huzur', 'Berasia', 'Kolar'],
+      Burhanpur: ['Burhanpur', 'Nepanagar', 'Bhaurgaon'],
+      Chhatarpur: ['Chhatarpur', 'Rajnagar', 'Khajuraho', 'Bijawar'],
+      Chhindwara: ['Chhindwara', 'Parasia', 'Panchpahad', 'Saoner'],
+      Damoh: ['Damoh', 'Hatta', 'Pathariya', 'Patera'],
+      Datia: ['Datia', 'Seondha', 'Sohawal'],
+      Dewas: ['Dewas', 'Sonkatch', 'Kannod', 'Tonkkar'],
+      Dhar: ['Dhar', 'Kukshi', 'Badnawar', 'Manawar'],
+      Dindori: ['Dindori', 'Sihora', 'Shahpura', 'Sagwa'],
+      Guna: ['Guna', 'Chachoda', 'Aron', 'Raghogarh'],
+      Gwalior: ['Gwalior', 'Bhitarwar', 'Morena', 'Sabalgarh'],
+      Harda: ['Harda', 'Sirsa', 'Timarni'],
+      Hoshangabad: ['Hoshangabad', 'Itarsi', 'Pipariya', 'Narsinghpur'],
+      Indore: ['Indore', 'Mhow', 'Dewas', 'Sanwer'],
+      Jabalpur: ['Jabalpur', 'Katangi', 'Mandla', 'Shahpura'],
+      Jhabua: ['Jhabua', 'Thandla', 'Petlawad', 'Alirajpur'],
+      Katni: ['Katni', 'Murwara', 'Bahoriband', 'Kawas'],
+      Khandwa: ['Khandwa', 'Mundi', 'Harsud', 'Pandhana'],
+      Khargone: ['Khargone', 'Barwaha', 'Khetia', 'Bhikangaon'],
+      Mandla: ['Mandla', 'Ghughari', 'Nainpur', 'Narayanganj'],
+      Mandsaur: ['Mandsaur', 'Sardarpur', 'Garoth', 'Malhargarh'],
+      Morena: ['Morena', 'Joura', 'Ambah', 'Sabalgarh'],
+      Narsinghpur: ['Narsinghpur', 'Gadarwara', 'Bichhiya', 'Chichli'],
+      Neemuch: ['Neemuch', 'Manasa', 'Jawad', 'Singoli'],
+      Panna: ['Panna', 'Ajaygarh', 'Hinauta', 'Rajauli'],
+      Raisen: ['Raisen', 'Goharganj', 'Silwani', 'Sehore'],
+      Rajgarh: ['Rajgarh', 'Biaora', 'Khilaudi', 'Narsinghgarh'],
+      Ratlam: ['Ratlam', 'Jaora', 'Mandsaur', 'Sailana'],
+      Rewa: ['Rewa', 'Mangawan', 'Satna', 'Maihar'],
+      Sagar: ['Sagar', 'Khurai', 'Khurai', 'Narsinghgarh'],
+      Satna: ['Satna', 'Maihar', 'Amarpatan', 'Nagod'],
+      Sehore: ['Sehore', 'Ashta', 'Berasia', 'Sihora'],
+      Seoni: ['Seoni', 'Chhapara', 'Lakhnadon', 'Keolari'],
+      Shahdol: ['Shahdol', 'Anuppur', 'Jaisinghnagar', 'Beohari'],
+      Shajapur: ['Shajapur', 'Shujalpur', 'Kalapipal', 'Biaora'],
+      Sheopur: ['Sheopur', 'Vijaipur', 'Kolar', 'Morena'],
+      Shivpuri: ['Shivpuri', 'Kolar', 'Pichhore', 'Karera'],
+      Sidhi: ['Sidhi', 'Singrauli', 'Churhat', 'Gorakhpur'],
+      Singrauli: ['Singrauli', 'Deosar', 'Chitrangi', 'Gopad Banjari'],
+      Tikamgarh: ['Tikamgarh', 'Prithvipur', 'Baldeogarh', 'Jatara'],
+      Ujjain: ['Ujjain', 'Nagda', 'Badnagar', 'Mahidpur'],
+      Umaria: ['Umaria', 'Baikunthpur', 'Basantpur', 'Johilla'],
+      Vidisha: ['Vidisha', 'Kurwai', 'Sanchi', 'Bhilakhedi']
+    }
+  },
+  Maharashtra: {
+    districts: {
+      Ahmednagar: ['Ahmednagar', 'Shrirampur', 'Shirdi', 'Pathardi'],
+      Akola: ['Akola', 'Murtizapur', 'Barshitakli'],
+      Amravati: ['Amravati', 'Daryapur', 'Chandur', 'Morshi'],
+      Aurangabad: ['Aurangabad', 'Paithan', 'Gangapur', 'Vaijapur'],
+      Beed: ['Beed', 'Georai', 'Ashti', 'Kaij'],
+      Bhandara: ['Bhandara', 'Tumsar', 'Sakoli', 'Pauni'],
+      Chandrapur: ['Chandrapur', 'Ballarpur', 'Rajura', 'Warora'],
+      Dhule: ['Dhule', 'Shindkheda', 'Sakri', 'Sindkheda'],
+      Gadchiroli: ['Gadchiroli', 'Chamorshi', 'Aheri', 'Desaiganj'],
+      Gondia: ['Gondia', 'Tirora', 'Arjuni', 'Deori'],
+      Hingoli: ['Hingoli', 'Kalamnuri', 'Aundha', 'Basmath'],
+      Jalgaon: ['Jalgaon', 'Chalisgaon', 'Pachora', 'Bhusawal'],
+      Jalna: ['Jalna', 'Ambad', 'Badnapur', 'Bhokardan'],
+      Kolhapur: ['Kolhapur', 'Ichalkaranji', 'Sangli', 'Hatkanangale'],
+      Latur: ['Latur', 'Udgir', 'Ausa', 'Nilanga'],
+      Mumbai_City: ['South Mumbai', 'Fort', 'Colaba', 'Dadar'],
+      Mumbai_Suburban: ['Andheri', 'Bandra', 'Borivali', 'Kurla', 'Vikhroli'],
+      Nagpur: ['Nagpur', 'Kamptee', 'Umred', 'Hingna'],
+      Nanded: ['Nanded', 'Deglur', 'Loha', 'Mudkhed'],
+      Nandurbar: ['Nandurbar', 'Shahada', 'Taloda', 'Navapur'],
+      Nashik: ['Nashik', 'Malegaon', 'Sinnar', 'Deolali', 'Igatpuri'],
+      Osmanabad: ['Osmanabad', 'Tuljapur', 'Bhoom', 'Paranda'],
+      Palghar: ['Palghar', 'Dahanu', 'Talasari', 'Vikramgad'],
+      Parbhani: ['Parbhani', 'Jintur', 'Gangakhed', 'Purna'],
+      Pune: ['Pune', 'Pimpri-Chinchwad', 'Baramati', 'Bhor', 'Shirur'],
+      Raigad: ['Alibag', 'Pen', 'Mahad', 'Roha'],
+      Ratnagiri: ['Ratnagiri', 'Chiplun', 'Guhagar', 'Lanja'],
+      Sangli: ['Sangli', 'Miraj', 'Palus', 'Jaysingpur'],
+      Satara: ['Satara', 'Wai', 'Koregaon', 'Karad'],
+      Sindhudurg: ['Sindhudurg', 'Malvan', 'Kankavli', 'Sawantwadi'],
+      Solapur: ['Solapur', 'Pandharpur', 'Barshi', 'Mangalwedha'],
+      Thane: ['Thane', 'Kalyan', 'Ulhasnagar', 'Bhiwandi', 'Vasai'],
+      Wardha: ['Wardha', 'Arvi', 'Deoli', 'Hinganghat'],
+      Washim: ['Washim', 'Karanja', 'Mangrulpir', 'Malegaon'],
+      Yavatmal: ['Yavatmal', 'Pusad', 'Darwha', 'Mahagaon']
+    }
+  },
+  Manipur: {
+    districts: {
+      Bishnupur: ['Bishnupur', 'Nambol', 'Moijing', 'Kumbi'],
+      Chandel: ['Chandel', 'Khengjoy', 'Lamdangmei', 'Tengnoupal'],
+      Churachandpur: ['Churachandpur', 'Singhat', 'Lamka', 'Saikot'],
+      Imphal_East: ['Porompat', 'Thoubal', 'Kakching', 'Wangoi'],
+      Imphal_West: ['Lamphelpat', 'Singjamei', 'Patsoi', 'Heingang'],
+      Jiribam: ['Jiribam', 'Phungyar', 'Moreh', 'Vangai'],
+      Kakching: ['Kakching', 'Sugnu', 'Waikhong', 'Hiyanglam'],
+      Kamjong: ['Kamjong', 'Phungyar', 'Kasom Khullen', 'Kasom Khunou'],
+      Kangpokpi: ['Sadar Hills', 'Tingkhong', 'Chingai', 'Kangchup'],
+      Noney: ['Noney', 'Longmai', 'Khoupum', 'Kamjong'],
+      Pherzawl: ['Pherzawl', 'Thanlon', 'Kangvai', 'Chingai'],
+      Senapati: ['Senapati', 'Maram', 'Paomata', 'Purul'],
+      Tamenglong: ['Tamenglong', 'Tamei', 'Nungba', 'Nungba Valley'],
+      Tengnoupal: ['Tengnoupal', 'Moreh', 'Chandel', 'Lamdangmei'],
+      Thoubal: ['Thoubal', 'Wangjing', 'Khangabok', 'Heirok'],
+      Ukhrul: ['Ukhrul', 'Phungyar', 'Hungpung', 'Khangkhui']
+    }
+  },
+  Meghalaya: {
+    districts: {
+      East_Garo_Hills: ['Williamnagar', 'Baghmara', 'Rongjeng', 'Chokpot'],
+      East_Jaintia_Hills: ['Khliehriat', 'Jowai', 'Nongpoh', 'Amlarem'],
+      East_Khasi_Hills: ['Shillong', 'Mawkynrew', 'Nongthymmai', 'Mawphlang'],
+      North_Garo_Hills: ['Resubelpara', 'Dalu', 'Songsak', 'Selsella'],
+      Ri_Bhoi: ['Nongpoh', 'Umroi', 'Mairang', 'Mawkyrwat'],
+      South_Garo_Hills: ['Baghmara', 'Ampati', 'Dalu', 'Williamnagar'],
+      South_West_Garo_Hills: ['Ampati', 'Dadenggiri', 'Selsella', 'Tikrikilla'],
+      South_West_Khasi_Hills: ['Mawkyrwat', 'Mairang', 'Nongstoin', 'Mawthadraishan'],
+      West_Garo_Hills: ['Tura', 'Dadenggiri', 'Ampati', 'Phulbari'],
+      West_Jaintia_Hills: ['Jowai', 'Khliehriat', 'Nartiang', 'Saipung'],
+      West_Khasi_Hills: ['Nongstoin', 'Mairang', 'Mawthadraishan', 'Sohra']
+    }
+  },
+  Mizoram: {
+    districts: {
+      Aizawl: ['Aizawl', 'Tlangnuam', 'Zawlnuam', 'Sairang'],
+      Champhai: ['Champhai', 'Khawzawl', 'Khawbung', 'Ngopa'],
+      Kolasib: ['Kolasib', 'Mamit', 'Biate', 'Tuisen'],
+      Lawngtlai: ['Lawngtlai', 'Sangau', 'Laki', 'Bikram'],
+      Lunglei: ['Lunglei', 'Thlarchhip', 'Hnahthial', 'Sangau'],
+      Mamit: ['Mamit', 'Sailam', 'Reiek', 'Dampa'],
+      Saiha: ['Saiha', 'Tuipang', 'Chawngte', 'Hnahlan'],
+      Serchhip: ['Serchhip', 'North Vanlaiphai', 'East Lungdar', 'Biate']
+    }
+  },
+  Nagaland: {
+    districts: {
+      Dimapur: ['Dimapur', 'Chumukedima', 'Khermahal', 'Seithekema'],
+      Kiphire: ['Kiphire', 'Amahato', 'Pungro', 'Chithising'],
+      Kohima: ['Kohima', 'Chiephobozou', 'Jakhama', 'Khuzama'],
+      Longleng: ['Longleng', 'Tamlu', 'Thonoknyu', 'Changkikong'],
+      Mokokchung: ['Mokokchung', 'Tuli', 'Changtongya', 'Mangkolemba'],
+      Mon: ['Mon', 'Chingmei', 'Phomching', 'Mokokchung'],
+      Peren: ['Peren', 'Doyang', 'Tening', 'Pheza'],
+      Phek: ['Phek', 'Meluri', 'Chozuba', 'Kiphire'],
+      Tuensang: ['Tuensang', 'Changtongya', 'Wokha', 'Tsurang'],
+      Wokha: ['Wokha', 'Molung', 'Sanis', 'Chukitong'],
+      Zunheboto: ['Zunheboto', 'Aghunato', 'Satakha', 'Khonoma']
+    }
+  },
+  Odisha: {
+    districts: {
+      Angul: ['Angul', 'Talcher', 'Athmallik', 'Pallahara'],
+      Balangir: ['Balangir', 'Titlagarh', 'Patnagarh', 'Boudh'],
+      Balasore: ['Balasore', 'Nilagiri', 'Jaleswar', 'Remuna'],
+      Bargarh: ['Bargarh', 'Attabira', 'Bhatli', 'Paikmal'],
+      Bhadrak: ['Bhadrak', 'Dhamnagar', 'Basudebpur', 'Bhandari'],
+      Boudh: ['Boudh', 'Phulbani', 'Harapanga', 'Khandapada'],
+      Cuttack: ['Cuttack', 'Athagarh', 'Niali', 'Salipur'],
+      Deogarh: ['Deogarh', 'Barbil', 'Bamra', 'Kaniha'],
+      Dhenkanal: ['Dhenkanal', 'Kamakshyanagar', 'Hindol', 'Odapada'],
+      Gajapati: ['Paralakhemundi', 'Nuapada', 'Rayagada', 'Serango'],
+      Ganjam: ['Bhubaneswar', 'Berhampur', 'Chatrapur', 'Aska'],
+      Jagatsinghpur: ['Jagatsinghpur', 'Tirtol', 'Paradip', 'Naugaon'],
+      Jajpur: ['Jajpur', 'Byasanagar', 'Dhauli', 'Danagadi'],
+      Jharsuguda: ['Jharsuguda', 'Belpahar', 'Lakhanpur', 'Bhandra'],
+      Kalahandi: ['Bhawanipatna', 'Junagarh', 'Lanjigarh', 'Dharmagarh'],
+      Kandhamal: ['Phulbani', 'Baliguda', 'Kotagarh', 'Daringbadi'],
+      Kendrapara: ['Kendrapara', 'Aul', 'Rajkanika', 'Mahakalpada'],
+      Kendujhar: ['Kendujhar', 'Barbil', 'Sukinda', 'Telkoi'],
+      Khordha: ['Khordha', 'Bhubaneswar', 'Bolgada', 'Tangi'],
+      Koraput: ['Koraput', 'Jeypore', 'Sunabeda', 'Nabarangpur'],
+      Malkangiri: ['Malkangiri', 'Jayanagar', 'Kalimela', 'Chintapalli'],
+      Mayurbhanj: ['Baripada', 'Rairangpur', 'Udala', 'Karanjia'],
+      Nabarangpur: ['Nabarangpur', 'Papadahandi', 'Umerkote', 'Tentulikhunti'],
+      Nayagarh: ['Nayagarh', 'Odagaon', 'Daspalla', 'Khandapara'],
+      Nuapada: ['Nuapada', 'Khariar', 'Komna', 'Sinapali'],
+      Puri: ['Puri', 'Konark', 'Chandrabhaga', 'Satyabadi'],
+      Rayagada: ['Rayagada', 'Gunupur', 'Padmapur', 'KORAPUT'],
+      Sambalpur: ['Sambalpur', 'Jharsuguda', 'Rengali', 'Hirakud'],
+      Subarnapur: ['Sonepur', 'Binka', 'Birmaharajpur', 'Tarbha'],
+      Sundargarh: ['Sundargarh', 'Rourkela', 'Biramitrapur', 'Rajagangapur']
+    }
+  },
+  Punjab: {
+    districts: {
+      Amritsar: ['Amritsar', 'Ajnala', 'Attari', 'Majitha'],
+      Barnala: ['Barnala', 'Bhawanigarh', 'Tapa', 'Sangrur'],
+      Bathinda: ['Bathinda', 'Rampura Phul', 'Mansa', 'Phul'],
+      Faridkot: ['Faridkot', 'Kotkapura', 'Jaitu', 'Guru Har Sahai'],
+      Fatehgarh_Sahib: ['Fatehgarh Sahib', 'Khamanon', 'Amloh', 'Bassi Pathana'],
+      Fazilka: ['Fazilka', 'Abohar', 'Jalalabad', 'Sadiq'],
+      Firozpur: ['Firozpur', 'Zira', 'Guru Har Sahai', 'Talwandi Bhai'],
+      Gurdaspur: ['Gurdaspur', 'Batala', 'Pathankot', 'Dera Baba Nanak'],
+      Hoshiarpur: ['Hoshiarpur', 'Dasuya', 'Tanda', 'Mahilpur'],
+      Jalandhar: ['Jalandhar', 'Phillaur', 'Nakodar', 'Shahkot'],
+      Kapurthala: ['Kapurthala', 'Sultanpur', 'Phagwara', 'Khera'],
+      Ludhiana: ['Ludhiana', 'Raikot', 'Samrala', 'Payal'],
+      Mansa: ['Mansa', 'Sardulgarh', 'Bareta', 'Rakh'],
+      Moga: ['Moga', 'Bagha Purana', 'Kot Ise Khan', 'Badhni Kalan'],
+      Muktsar: ['Muktsar', 'Gidderbaha', 'Lambi', 'Malout'],
+      Nawanshahr: ['Nawanshahr', 'Banga', 'Balachaur', 'Saroya'],
+      Pathankot: ['Pathankot', 'Dera Baba Nanak', 'Gurdaspur', 'Batala'],
+      Patiala: ['Patiala', 'Rajpura', 'Samana', 'Sanaur'],
+      Rupnagar: ['Rupnagar', 'Nurpur Bedi', 'Chamkaur Sahib', 'Anandpur Sahib'],
+      Sangrur: ['Sangrur', 'Dhuri', 'Lehragaga', 'Moonak'],
+      SAS_Nagar: ['Mohali', 'Kharar', 'Derabassi', 'Ajitgarh'],
+      TarnTaran: ['Tarn Taran', 'Khadoor Sahib', 'Patti', 'Kapurthala']
+    }
+  },
+  Rajasthan: {
+    districts: {
+      Ajmer: ['Ajmer', 'Pushkar', 'Kishangarh', 'Beawar'],
+      Alwar: ['Alwar', 'Bharatpur', 'Neemrana', 'Rajgarh'],
+      Banswara: ['Banswara', 'Kushalgarh', 'Ghatol', 'Bagidora'],
+      Baran: ['Baran', 'Atru', 'Kishanganj', 'Chhabra'],
+      Barmer: ['Barmer', 'Balotra', 'Guda Malani', 'Sheo'],
+      Bharatpur: ['Bharatpur', 'Deeg', 'Kaman', 'Nathdwara'],
+      Bhilwara: ['Bhilwara', 'Shahpura', 'Asind', 'Mandal'],
+      Bikaner: ['Bikaner', 'Nokha', 'Khajuwala', 'Lunkaransar'],
+      Bundi: ['Bundi', 'Bundi City', 'Keshoraipatan', 'Deoli'],
+      Chittorgarh: ['Chittorgarh', 'Begun', 'Kapasan', 'Mavli'],
+      Churu: ['Churu', 'Ratangarh', 'Sardarshahar', 'Taranagar'],
+      Dausa: ['Dausa', 'Lalsot', 'Lawan', 'Baswa'],
+      Dholpur: ['Dholpur', 'Bari', 'Sohagaon', 'Rajakhera'],
+      Dungarpur: ['Dungarpur', 'Aspur', 'Sagwara', 'Banswara'],
+      Hanumangarh: ['Hanumangarh', 'Nohar', 'Rawatsar', 'Pilibanga'],
+      Jaipur: ['Jaipur', 'Sanganer', 'Amer', 'Bagru'],
+      Jaisalmer: ['Jaisalmer', 'Pokhran', 'Lathi', 'Balesar'],
+      Jalore: ['Jalore', 'Sanchore', 'Ahore', 'Bhadrajun'],
+      Jhalawar: ['Jhalawar', 'Pirawa', 'Bhagwanpura', 'Manoharthana'],
+      Jhunjhunu: ['Jhunjhunu', 'Nawalgarh', 'Sikar', 'Udaipurwati'],
+      Jodhpur: ['Jodhpur', 'Osian', 'Phalodi', 'Bilara'],
+      Karauli: ['Karauli', 'Hindaun', 'Suroth', 'Mandrayal'],
+      Kota: ['Kota', 'Ramganj Mandi', 'Keshoraipatan', 'Sawai Madhopur'],
+      Nagaur: ['Nagaur', 'Merta', 'Degana', 'Jayal'],
+      Pali: ['Pali', 'Rani', 'Desuri', 'Sumerpur'],
+      Pratapgarh: ['Pratapgarh', 'Chhoti Sadri', 'Arnod', 'Dhariawad'],
+      Rajsamand: ['Rajsamand', 'Kumbhalgarh', 'Amet', 'Nathdwara'],
+      Sawai_Madhopur: ['Sawai Madhopur', 'Gangapur', 'Bari', 'Karauli'],
+      Sikar: ['Sikar', 'Fatehpur', 'Laxmangarh', 'Neem Ka Thana'],
+      Sirohi: ['Sirohi', 'Pindwara', 'Mount Abu', 'Reodar'],
+      Tonk: ['Tonk', 'Malpura', 'Deoli', 'Todaraisingh'],
+      Udaipur: ['Udaipur', 'Kumbhalgarh', 'Gogunda', 'Rajsamand']
+    }
+  },
+  Sikkim: {
+    districts: {
+      East_Sikkim: ['Gangtok', 'Ravangla', 'Namchi', 'Mangan'],
+      North_Sikkim: ['Mangan', 'Lachen', 'Lachung', 'Phodong'],
+      South_Sikkim: ['Namchi', 'Ravangla', 'Jorethang', 'Melli'],
+      West_Sikkim: ['Gyalshing', 'Pelling', 'Soreng', 'Yuksom']
+    }
+  },
+  TamilNadu: {
+    districts: {
+      Ariyalur: ['Ariyalur', 'Andimadam', 'Sendurai', 'Udayarpalayam'],
+      Chengalpattu: ['Chengalpattu', 'Tambaram', 'Thiruporur', 'Pallavaram'],
+      Chennai: ['Chennai', 'Egmore', 'Mylapore', 'T Nagar'],
+      Coimbatore: ['Coimbatore', 'Mettupalayam', 'Sulur', 'Pollachi'],
+      Cuddalore: ['Cuddalore', 'Panruti', 'Chidambaram', 'Kattumannarkoil'],
+      Dharmapuri: ['Dharmapuri', 'Harur', 'Palacode', 'Pappireddipatti'],
+      Dindigul: ['Dindigul', 'Palani', 'Natham', 'Vedasandur'],
+      Erode: ['Erode', 'Perundurai', 'Sathyamangalam', 'Bhavani'],
+      Kallakurichi: ['Kallakurichi', 'Sankarapuram', 'Chinnasalem', 'Tirukoilur'],
+      Kanchipuram: ['Kanchipuram', 'Sriperumbudur', 'Chengalpattu', 'Uthiramerur'],
+      Kanniyakumari: ['Nagercoil', 'Kanyakumari', 'Padmanabhapuram', 'Agastheeswaram'],
+      Karur: ['Karur', 'Kulithalai', 'Krishnarayapuram', 'Kadavasal'],
+      Krishnagiri: ['Krishnagiri', 'Hosur', 'Pochampalli', 'Denkanikottai'],
+      Madurai: ['Madurai', 'Melur', 'Thirumangalam', 'Usilampatti'],
+      Nagapattinam: ['Nagapattinam', 'Kilvelur', 'Thirukkuvalai', 'Vedaranyam'],
+      Namakkal: ['Namakkal', 'Rasipuram', 'Senthamangalam', 'Thiruchengode'],
+      Perambalur: ['Perambalur', 'Veppanthattai', 'Alathur', 'Kunnam'],
+      Pudukkottai: ['Pudukkottai', 'Aranthangi', 'Alangudi', 'Karaikudi'],
+      Ramanathapuram: ['Ramanathapuram', 'Paramakudi', 'Rameswaram', 'Mudukulathur'],
+      Salem: ['Salem', 'Attur', 'Omalur', 'Mettur'],
+      Sivagangai: ['Sivagangai', 'Manamadurai', 'Kalaiyarkoil', 'Singampunari'],
+      Tenkasi: ['Tenkasi', 'Shenkottai', 'Sankarankovil', 'Alangulam'],
+      Thanjavur: ['Thanjavur', 'Kumbakonam', 'Pattukkottai', 'Orathanadu'],
+      Theni: ['Theni', 'Periyakulam', 'Andipatti', 'Uthamapalayam'],
+      Thiruvallur: ['Thiruvallur', 'Ponneri', 'Uthukkottai', 'Tiruttani'],
+      Thiruvarur: ['Thiruvarur', 'Nannilam', 'Kudavasal', 'Koothanallur'],
+      Thoothukudi: ['Thoothukudi', 'Kovilpatti', 'Tiruchendur', 'Srivaikuntam'],
+      Tiruchirappalli: ['Tiruchirappalli', 'Srirangam', 'Lalgudi', 'Manapparai'],
+      Tirunelveli: ['Tirunelveli', 'Palayamkottai', 'Tenkasi', 'Ambasamudram'],
+      Tiruppur: ['Tiruppur', 'Avinashi', 'Kangeyam', 'Udumalpet'],
+      Tiruvannamalai: ['Tiruvannamalai', 'Arani', 'Cheyyar', 'Vandavasi'],
+      Vellore: ['Vellore', 'Gudiyatham', 'Ambur', 'Tirupattur'],
+      Viluppuram: ['Viluppuram', 'Tindivanam', 'Marakkanam', 'Vanur'],
+      Virudhunagar: ['Virudhunagar', 'Sivakasi', 'Srivilliputhur', 'Rajapalayam']
+    }
+  },
+  Telangana: {
+    Adilabad: ['Adilabad', 'Mancherial', 'Nirmal', 'Boath'],
+    Bhadradri_Kothagudem: ['Kothagudem', 'Bhadrachalam', 'Palwancha', 'Chintoor'],
+    Hyderabad: ['Hyderabad', 'Secunderabad', 'Gachibowli', 'Hitech City'],
+    Jagtial: ['Jagtial', 'Metpally', 'Mallial', 'Korutla'],
+    Jangaon: ['Jangaon', 'Ghanpur', 'Cheriyal', 'Waddicherla'],
+    Jayashankar_Bhupalapally: ['Bhupalapally', 'Chityal', 'Venkatapuram', 'Parkal'],
+    Jogulamba_Gadwal: ['Gadwal', 'Alampur', 'Maddur', 'Kothakota'],
+    Kamareddy: ['Kamareddy', 'Banswada', 'Yellareddy', 'Sirnapally'],
+    Karimnagar: ['Karimnagar', 'Sircilla', 'Jammikunta', 'Huzurabad'],
+    Khammam: ['Khammam', 'Palair', 'Wyra', 'Sathupalli'],
+    Komaram_Bheem_Asifabad: ['Asifabad', 'Sirpur', 'Bejjur', 'Dahegaon'],
+    Mahabubabad: ['Mahabubabad', 'Thorrur', 'Narsampet', 'Tadvai'],
+    Mahabubnagar: ['Mahabubnagar', 'Nagarkurnool', 'Devarakadra', 'Koilkonda'],
+    Mancherial: ['Mancherial', 'Bellampalli', 'Mandamarri', 'Chennur'],
+    Medak: ['Medak', 'Sangareddy', 'Dubbak', 'Papannapet'],
+    Medchal_Malkajgiri: ['Medchal', 'Keesara', 'Shamirpet', 'Alwal'],
+    Mulugu: ['Mulugu', 'Eturunagaram', 'Chintoor', 'Kothagudem'],
+    Nagarkurnool: ['Nagarkurnool', 'Kalwakurthy', 'Achampet', 'Kothakota'],
+    Nalgonda: ['Nalgonda', 'Miryalaguda', 'Suryapet', 'Chilkur'],
+    Narayanpet: ['Narayanpet', 'Balanagar', 'Kosgi', 'Chinnachintakunta'],
+    Nirmal: ['Nirmal', 'Bhainsa', 'Kubeer', 'Kuntala'],
+    Nizamabad: ['Nizamabad', 'Armoor', 'Bodhan', 'Metpally'],
+    Peddapalli: ['Peddapalli', 'Manthani', 'Ramagundam', 'Sulthanabad'],
+    Rajanna_Sircilla: ['Sircilla', 'Vemulawada', 'Boinpalli', 'Ellanthakunta'],
+    Rangareddy: ['Shadnagar', 'Rajendranagar', 'Chevella', 'Gachibowli'],
+    Sangareddy: ['Sangareddy', 'Zaheerabad', 'Patancheru', 'Andole'],
+    Siddipet: ['Siddipet', 'Gajwel', 'Tandur', 'Sircilla'],
+    Suryapet: ['Suryapet', 'Thungathurthy', 'Neredcherla', 'Munagala'],
+    Vikarabad: ['Vikarabad', 'Pargi', 'Parigi', 'Dharur'],
+    Wanaparthy: ['Wanaparthy', 'Pebbair', 'Vangoor', 'Veepanagandla'],
+    Warangal_Rural: ['Warangal', 'Kazipet', 'Chowdur', 'Narsampet'],
+    Warangal_Urban: ['Hanamkonda', 'Warangal', 'Bhupalpally', 'Parkal'],
+    Yadadri_Bhuvanagiri: ['Bhuvanagiri', 'Choutuppal', 'Valigonda', 'Alair']
+  },
+  Tripura: {
+    districts: {
+      Dhalai: ['Ambassa', 'Kamalpur', 'Gandacherra', 'Mungiakami'],
+      Gomati: ['Udaipur', 'Killa', 'Amarpur', 'Karbook'],
+      Khowai: ['Khowai', 'Teliamura', 'Kalyanpur', 'Bishalgarh'],
+      North_Tripura: ['Dharmanagar', 'Kanchanpur', 'Kadamtala', 'Panisagar'],
+      Sepahijala: ['Sonamura', 'Bishalgarh', 'Udaipur', 'Melaghar'],
+      South_Tripura: ['Belonia', 'Sabroom', 'Santirbazar', 'Mungiakami'],
+      Unakoti: ['Kailashahar', 'Kanchanpur', 'Dharmanagar', 'Kumarghat'],
+      West_Tripura: ['Agartala', 'Krishna Nagar', 'Dhalai', 'Jirania']
+    }
+  },
+  UttarPradesh: {
+    districts: {
+      Agra: ['Agra', 'Fatehabad', 'Kheragarh', 'Bah'],
+      Aligarh: ['Aligarh', 'Khair', 'Gabhana', 'Atrauli'],
+      Allahabad_Pradesh: ['Prayagraj', 'Phulpur', 'Soraon', 'Koraon'],
+      Ambedkar_Nagar: ['Akbarpur', 'Tanda', 'Bhiyaon', 'Jalalpur'],
+      Amethi: ['Amethi', 'Gauriganj', 'Jaisinghpur', 'Salon'],
+      Amroha: ['Amroha', 'Hasanpur', 'Dhanaura', 'Gajraula'],
+      Auraiya: ['Auraiya', 'Ajitmal', 'Jaswantnagar', 'Bilhaur'],
+      Azamgarh: ['Azamgarh', 'Martinganj', 'Mubarakpur', 'Sagri'],
+      Bagpat: ['Bagpat', 'Baraut', 'Khekra', 'Meerut'],
+      Bahraich: ['Bahraich', 'Nanpara', 'Payagpur', 'Mahasi'],
+      Ballia: ['Ballia', 'Bairia', 'Belthara', 'Bansdih'],
+      Balrampur: ['Balrampur', 'Tulsipur', 'Utraula', 'Maharajganj'],
+      Banda: ['Banda', 'Atarra', 'Naraini', 'Tindwari'],
+      Barabanki: ['Barabanki', 'Zaidpur', 'Sikanderpur', 'Rudauli'],
+      Bareilly: ['Bareilly', 'Baheri', 'Aonla', 'Bithari Chainpur'],
+      Basti: ['Basti', 'Harraiya', 'Tanda', 'Ramnagar'],
+      Bijnor: ['Bijnor', 'Nagina', 'Dhampur', 'Najibabad'],
+      Bulandshahr: ['Bulandshahr', 'Anupshahr', 'Siana', 'Syana'],
+      Chandauli: ['Chandauli', 'Mughalsarai', 'Saidpur', 'Deo'],
+      Chitrakoot: ['Chitrakoot', 'Karwi', 'Manikpur', 'Rajapur'],
+      Deoria: ['Deoria', 'Rampur Karkhana', 'Barhaj', 'Bhatpar Rani'],
+      Etah: ['Etah', 'Kasganj', 'Awagarh', 'Sakteshwar'],
+      Etawah: ['Etawah', 'Bharthana', 'Saifai', 'Kakadeo'],
+      Ayodhya: ['Ayodhya', 'Rudauli', 'Maharajganj', 'Bhojpur'],
+      Farrukhabad: ['Farrukhabad', 'Kaimganj', 'Fatehgarh', 'Shikohabad'],
+      Fatehpur: ['Fatehpur', 'Koraon', 'Khaga', 'Bindki'],
+      Firozabad: ['Firozabad', 'Shikohabad', 'Tundla', 'Jasrana'],
+      Gautam_Budh_Nagar: ['Noida', 'Greater Noida', 'Dadri', 'Jewar'],
+      Ghaziabad: ['Ghaziabad', 'Muradnagar', 'Modinagar', 'Loni'],
+      Ghazipur: ['Ghazipur', 'Zamania', 'Mohammadabad', 'Saidpur'],
+      Gonda: ['Gonda', 'Mankapur', 'Colonelganj', 'Katra'],
+      Gorakhpur: ['Gorakhpur', 'Sahajanwa', 'Pipraich', 'Campierganj'],
+      Hamirpur_UP: ['Hamirpur', 'Mahoba', 'Dhanaura', 'Charkhari'],
+      Hapur: ['Hapur', 'Garhmukteshwar', 'Dhaulana', 'Hathras'],
+      Hardoi: ['Hardoi', 'Sandi', 'Shahabad', 'Bilgram'],
+      Hathras: ['Hathras', 'Sadabad', 'Sikandrabad', 'Aligarh'],
+      Jalaun: ['Orai', 'Konch', 'Kalpi', 'Mauranipur'],
+      Jaunpur: ['Jaunpur', 'Shahganj', 'Mariahu', 'Machhlishahr'],
+      Jhansi: ['Jhansi', 'Mauranipur', 'Babina', 'Chhatarpur'],
+      Kannauj: ['Kannauj', 'Tirwa', 'Chhibramau', 'Mati'],
+      Kanpur_Dehat: ['Akbarpur', 'Bhognipur', 'Rasoolabad', 'Derapur'],
+      Kanpur_Nagar: ['Kanpur', 'Govind Nagar', 'Kalyanpur', 'Ghatampur'],
+      Kasganj: ['Kasganj', 'Patiali', 'Sikandra Rao', 'Nawabganj'],
+      Kaushambi: ['Manjhanpur', 'Chail', 'Bhadau', 'Kundarkhi'],
+      Kheri: ['Lakhimpur Kheri', 'Mailani', 'Gola Gokarannath', 'Nighasan'],
+      Kushinagar: ['Kushinagar', 'Padrauna', 'Khadda', 'Hata'],
+      Lalitpur_UP: ['Lalitpur', 'Talbehat', 'Mahroni', 'Madawara'],
+      Lucknow: ['Lucknow', 'Malihabad', 'Bakshi Ka Talab', 'Mohammadabad'],
+      Maharajganj: ['Maharajganj', 'Sadar', 'Pipraich', 'Nautanwa'],
+      Mahoba: ['Mahoba', 'Charkhari', 'Kakora', 'Babina'],
+      Mainpuri: ['Mainpuri', 'Karhal', 'Kishni', 'Bhongaon'],
+      Mathura: ['Mathura', 'Vrindavan', 'Govardhan', 'Chhata'],
+      Mau: ['Mau', 'Shahganj', 'Ghosi', 'Gopalpur'],
+      Meerut: ['Meerut', 'Sardhana', 'Daurala', 'Kharkhoda'],
+      Mirzapur: ['Mirzapur', 'Chunar', 'Vindhyachal', 'Robertsganj'],
+      Moradabad: ['Moradabad', 'Thakurdwara', 'Bilari', 'Chandausi'],
+      Muzaffarnagar: ['Muzaffarnagar', 'Khatauli', 'Budhana', 'Kairana'],
+      Pilibhit: ['Pilibhit', 'Bisalpur', 'Barkhera', 'Puranpur'],
+      Pratapgarh_UP: ['Pratapgarh', 'Kunda', 'Raniganj', 'Rajapur'],
+      Raebareli: ['Raebareli', 'Unchahar', 'Salon', 'Dalmau'],
+      Rampur_UP: ['Rampur', 'Tanda', 'Bilaspur', 'Milak'],
+      Saharanpur: ['Saharanpur', 'Nakud', 'Behat', 'Chilkana Sultanpur'],
+      Sambhal: ['Sambhal', 'Chandausi', 'Asmoli', 'Bhimnagar'],
+      Sant_Kabir_Nagar: ['Bansi', 'Mehdawal', 'Khalilabad', 'Tanda'],
+      Shahjahanpur: ['Shahjahanpur', 'Tilhar', 'Powayan', 'Katra'],
+      Shravasti: ['Bhinga', 'Tulsipur', 'Balrampur', 'Shrawasti'],
+      Sitapur: ['Sitapur', 'Misrikh', 'Sidhauli', 'Laharpur'],
+      Sonbhadra: ['Robertsganj', 'Obra', 'Ghorawal', 'Churk'],
+      Sultanpur: ['Sultanpur', 'Kadipur', 'Kurebhar', 'Jaisinghpur'],
+      Unnao: ['Unnao', 'Bangarmau', 'Safipur', 'Hasanganj'],
+      Varanasi: ['Varanasi', 'Sarnath', 'Ramnagar', 'Chiraigaon']
+    }
+  },
+  Uttarakhand: {
+    districts: {
+      Almora: ['Almora', 'Ranikhet', 'Dwarahat', 'Bhikiyasain'],
+      Bageshwar: ['Bageshwar', 'Kapkot', 'Kanda', 'Kandoli'],
+      Chamoli: ['Chamoli', 'Joshimath', 'Gopeshwar', 'Nandprayag'],
+      Champawat: ['Champawat', 'Pati', 'Barakot', 'Lohaghat'],
+      Dehradun: ['Dehradun', 'Rishikesh', 'Mussoorie', 'Vikasnagar'],
+      Haridwar: ['Haridwar', 'Laksar', 'Roorkee', 'Jwalapur'],
+      Nainital: ['Nainital', 'Haldwani', 'Ramnagar', 'Almora'],
+      Pauri_Garhwal: ['Pauri', 'Kotdwara', 'Chamba', 'Chakrata'],
+      Pithoragarh: ['Pithoragarh', 'Dharchula', 'Didihat', 'Munsiari'],
+      Rudraprayag: ['Rudraprayag', 'Karnaprayag', 'Chinyalisaur', 'Agastyamuni'],
+      Tehri_Garhwal: ['Tehri', 'New Tehri', 'Pratapnagar', 'Chamba'],
+      Udham_Singh_Nagar: ['Haldwani', 'Rudrapur', 'Kichha', 'Pantnagar'],
+      Uttarkashi: ['Uttarkashi', 'Gangotri', 'Yamunotri', 'Harsil']
+    }
+  },
+  WestBengal: {
+    districts: {
+      Alipurduar: ['Alipurduar', 'Falakata', 'Jaigaon', 'Kalchini'],
+      Bankura: ['Bankura', 'Khatra', 'Raipur', 'Bishnupur'],
+      Birbhum: ['Suri', 'Rampurhat', 'Bolpur', 'Nalhati'],
+      Cooch_Behar: ['Cooch Behar', 'Dinhata', 'Tufanganj', 'Mathabhanga'],
+      Darjeeling: ['Darjeeling', 'Siliguri', 'Kalimpong', 'Kurseong'],
+      Dakshin_Dinajpur: ['Balurghat', 'Gangarampur', 'Buniadpur', 'Hili'],
+      Hooghly: ['Chinsurah', 'Serampore', 'Bandel', 'Arambagh'],
+      Howrah: ['Howrah', 'Bally', 'Uluberia', 'Amta'],
+      Jalpaiguri: ['Jalpaiguri', 'Alipurduar', 'Dhupguri', 'Malbazar'],
+      Jhargram: ['Jhargram', 'Binpur', 'Gopiballavpur', 'Belpahari'],
+      Kalimpong: ['Kalimpong', 'Pedong', 'Gorubathan', 'Lava'],
+      Kolkata: ['Kolkata', 'Ballygunge', 'Park Street', 'Salt Lake'],
+      Maldah: ['Maldah', 'English Bazar', 'Chanchal', 'Gazole'],
+      Murshidabad: ['Berhampore', 'Murshidabad', 'Domkal', 'Beldanga'],
+      Nadia: ['Krishnanagar', 'Ranaghat', 'Kalyani', 'Nabadwip'],
+      North_24_Parganas: ['Barasat', 'Bangaon', 'Basirhat', 'Habra'],
+      Paschim_Mednipur: ['Mednipur', 'Tamluk', 'Haldia', 'Ghatal'],
+      Purba_Mednipur: ['Tamluk', 'Haldia', 'Contai', 'Egra'],
+      Purulia: ['Purulia', 'Ranchi', 'Balarampur', 'Manbazar'],
+      South_24_Parganas: ['Alipore', 'Diamond Harbour', 'Canning', 'Bhangar'],
+      Uttar_Dinajpur: ['Raiganj', 'Islampur', 'Kaliaganj', 'Kaliyaganj']
+    }
+  }
+};
+
+
+/* -------------------------
+   Search Scribe Screen
+------------------------- */
+export default function SearchScribeScreen() {
+  const navigation = useNavigation();
+
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+
+  const states = Object.keys(locationData);
+  const districts = selectedState ? Object.keys(locationData[selectedState].districts) : [];
+  const cities =
+    selectedState && selectedDistrict
+      ? locationData[selectedState].districts[selectedDistrict]
+      : [];
+
+  const handleSearch = () => {
+    Alert.alert(
+      'Search',
+      `Searching in ${selectedCity || selectedDistrict || selectedState || 'all locations'}`
+    );
+  };
+
+  return (
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="always"
+    >
+
+
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={26} color="black" />
+      </TouchableOpacity>
+
+      <Text style={styles.title}>Search for Scribe</Text>
+
+
+
+      {/* Near Me Button */}
+      <TouchableOpacity
+        style={styles.nearMeButton}
+        onPress={() => Alert.alert('Near Me', 'Searching near you')}
+      >
+        <Text style={styles.buttonText}>Near Me</Text>
+      </TouchableOpacity>
+
+      <View style={styles.divider} />
+
+      <Text style={styles.subtitle}>Search in other location</Text>
+
+      <CustomSelect
+        label="Select State"
+        options={states}
+        selected={selectedState}
+        onSelect={(val) => {
+          setSelectedState(val);
+          setSelectedDistrict(null);
+          setSelectedCity(null);
+        }}
+      />
+
+      <CustomSelect
+        label="Select District"
+        options={districts}
+        selected={selectedDistrict}
+        onSelect={(val) => {
+
+          setSelectedDistrict(val);
+          setSelectedCity(null);
+        }}
+      />
+
+      <CustomSelect
+        label="Select City"
+        options={cities}
+        selected={selectedCity}
+        onSelect={setSelectedCity}
+      />
+
+      <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+
+/* -------------------------
+   STYLES
+------------------------- */
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'flex-start',  // pushes everything to bottom
+    padding: 20,
+    paddingTop: 90
+  },
+
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+  nearMeButton: {
+    backgroundColor: '#6A0DAD',
+    padding: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  searchButton: {
+    backgroundColor: '#6A0DAD',
+    padding: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 20 },
+  divider: { borderBottomWidth: 1, borderBottomColor: '#ccc', marginVertical: 20 },
+  subtitle: { fontSize: 16, fontWeight: '600', marginBottom: 15 },
+  label: { marginBottom: 5, fontWeight: '600' },
+
+  selectButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#aaa',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+
+  },
+
+  modalContent: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    maxHeight: '60%',
+    paddingVertical: 10,
+    overflow: 'hidden',
+  },
+
+  // Add shadow for iOS if you want
+
+
+  modalBox: {
+    width: '80%',
+    maxHeight: '60%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: 10,
+  },
+
+
+  optionButton: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  optionText: { fontSize: 16 },
+
+  backButton: {
+    position: 'absolute', // important!
+    top: 30, // below status bar
+    left: 15, // from left edge
+    zIndex: 10, // make sure it stays on top
+  }
+
+});
+
+
+
+//StudyMaterialScreen.jsx
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+export default function StudyMaterialScreen() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Study Material Screen</Text>
+      <Text>Needy users can access study materials here.</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+});
+
+
+
+//UploadNotesScreen.jsx
+import React, { useState, useContext } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { UploadedNotesContext } from './UploadedNotesContext';
+
+
+export default function UploadNotesScreen({ navigation }) {
+  const [fileInfo, setFileInfo] = useState(null);
+  const { addNote } = useContext(UploadedNotesContext);
+  
+
+  const pickImage = async () => {
+    const options = { mediaType: 'photo', selectionLimit: 1 };
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) return;
+      if (response.errorCode) {
+        Alert.alert('Error', response.errorMessage);
+      } else {
+        const asset = response.assets[0];
+        setFileInfo(asset);
+      }
+    });
+  };
+
+  const saveNote = () => {
+    if (fileInfo) {
+      addNote(fileInfo);
+      Alert.alert('Success', 'Note uploaded!');
+      setFileInfo(null);
+    } else {
+      Alert.alert('No file selected', 'Please select an image first.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate('SearchScribeScreen'); // fallback
+            }
+          }}
+        >
+          <Ionicons name="arrow-back" size={26} color="#000000ff" />
+        </TouchableOpacity>
+      <Text style={styles.title}>Upload Your Notes</Text>
+
+      <TouchableOpacity style={styles.button} onPress={pickImage}>
+        <Text style={styles.buttonText}>Pick Notes</Text>
+      </TouchableOpacity>
+
+      {fileInfo && fileInfo.uri && (
+        <View style={styles.preview}>
+          <Text style={styles.fileName}>{fileInfo.fileName}</Text>
+          <Image source={{ uri: fileInfo.uri }} style={styles.previewImage} />
+        </View>
+      )}
+
+      <TouchableOpacity style={styles.button} onPress={saveNote}>
+        <Text style={styles.buttonText}>Upload</Text>
+      </TouchableOpacity>
+
+      
+        <Text style={styles.buttonText}>View Uploaded Notes</Text>
+      
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' ,  justifyContent: 'flex-start', paddingTop:150 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
+  button: { backgroundColor:  '#6A0DAD', padding: 15, borderRadius: 35, marginBottom: 20, padding:40 },
+  buttonText: { color: '#fff', fontWeight: 'bold', textAlign: 'center', fontSize:20 },
+  preview: { alignItems: 'center', marginBottom: 20 },
+  fileName: { fontSize: 16, marginBottom: 10 },
+  previewImage: { width: 200, height: 200, resizeMode: 'contain', borderRadius: 8 },
+  backButton:{
+    bottom:90
+  }
+});
+
+
+
+
+//ViewUploadsScreen.jsx
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { UploadedNotesContext } from './UploadedNotesContext';
+
+export default function ViewUploadsScreen() {
+  const { uploadedNotes = [] } = useContext(UploadedNotesContext);
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer} // <-- move layout styles here
+    >
+      <Text style={styles.title}>Uploaded Notes</Text>
+      {uploadedNotes.length === 0 && <Text>No notes uploaded yet.</Text>}
+
+      {uploadedNotes.map((note, index) => (
+        <View key={index} style={styles.note}>
+          <Text style={styles.fileName}>{note.fileName}</Text>
+          <Image source={{ uri: note.uri }} style={styles.image} />
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor:  '#e3dbe1ff' },
+  contentContainer: { justifyContent: 'flex-start', paddingTop: 80, padding: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+  note: { marginBottom: 20, alignItems: 'center' },
+  fileName: { fontSize: 16, marginBottom: 10 },
+  image: { width: 200, height: 200, resizeMode: 'contain', borderRadius: 8 },
+});
+
+
+
+
+//Settings.jsx
+import React from 'react';
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const Settings = () => {
+  const navigation = useNavigation();
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account permanently?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear(); // Remove all user data
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "SplashScreen" }],
+              });
+            } catch (error) {
+              Alert.alert("Error", "Could not delete your account.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("user");
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "SplashScreen" }],
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => {
+                  if (navigation.canGoBack()) {
+                    navigation.goBack();
+                  } else {
+                    navigation.navigate('SearchScribeScreen'); // fallback
+                  }
+                }}
+              >
+                <Ionicons name="arrow-back" size={26} color="#000000ff" />
+              </TouchableOpacity>
+      <Text style={styles.title}>Settings</Text>
+
+      <TouchableOpacity style={styles.button} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={handleDeleteAccount}>
+        <Text style={styles.buttonText}>Delete Account</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default Settings;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor:'#e2b9d4ff', padding: 20, justifyContent: "center" },
+  title: { fontSize: 24, fontWeight: "bold", textAlign: "center", marginBottom: 40 },
+  button: {
+    backgroundColor: '#6A0DAD',
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  deleteButton: {
+    backgroundColor: "red",
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  backButton:{
+    bottom:250
+  }
+});
+
+
+
+//ChatScreen.jsx
+import React, { useEffect, useState } from "react";
+import { View, TextInput, Button, Text, FlatList, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { db } from "../firebase/firebaseConfig";
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from "@react-navigation/native";
+
+
+
+export default function ChatScreen({ route }) {
+  const role = route?.params?.role || null;
+  const chatId = route?.params?.chatId || null;
+
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+  const [userName, setUserName] = useState("");
+  const navigation = useNavigation();
+
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const storedUser = await AsyncStorage.getItem("userData");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setUserName(parsed.name);
+      }
+    };
+    loadUser();
+  }, []);
+
+  if (!role || !chatId) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Chat not initialized</Text>
+        <Text>Please open chat correctly.</Text>
+      </View>
+    );
+  }
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "chats", chatId, "messages"),
+      orderBy("createdAt", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, snapshot => {
+      const msgs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMessages(msgs);
+    });
+
+    return unsubscribe;
+  }, [chatId]);
+
+  const sendMessage = async () => {
+    if (!text.trim()) return;
+
+    await addDoc(collection(db, "chats", chatId, "messages"), {
+      text,
+      sender: role,
+      senderName: userName,
+      createdAt: serverTimestamp(),
+    });
+
+    setText("");
+  };
+
+  return (
+    <View style={styles.container}>
+      
+      {/* HEADER */}
+      <View style={styles.header}>
+        <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('ScribeHomeScreen'); // fallback
+          }
+        }}
+      >
+        <Ionicons name="arrow-back" size={26} color="#000000ff" />
+      </TouchableOpacity>
+        <Text style={styles.headerText}>{userName}</Text>
+      </View>
+
+      <FlatList
+        data={messages}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <View style={[styles.bubble, item.sender === role ? styles.mine : styles.other]}>
+            <Text style={styles.sender}>
+              {item.sender === role ? "You" : item.senderName}
+            </Text>
+
+            {item.text && <Text>{item.text}</Text>}
+
+            {item.image && (
+              <Image source={{ uri: item.image }} style={styles.chatImage} />
+            )}
+          </View>
+        )}
+      />
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Message..."
+          value={text}
+          placeholderTextColor="black"
+          onChangeText={setText}
+        />
+        <Button title="Send" onPress={sendMessage} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: 'lightyellow' },
+  header: { padding: 5, backgroundColor: "#5ed385ff" },
+  headerText: { fontSize: 18, fontWeight: "bold",  marginLeft: 38, bottom:13},
+  bubble: { padding: 10, borderRadius: 10, marginVertical: 5, marginHorizontal: 10, maxWidth: "75%" },
+  mine: { alignSelf: "flex-end", backgroundColor: "#DCF8C6" },
+  other: { alignSelf: "flex-start", backgroundColor: "#eee" },
+  sender: { fontSize: 12, fontWeight: "bold", marginBottom: 3 },
+  chatImage: { width: 200, height: 200, borderRadius: 10 },
+  inputContainer: { flexDirection: "row", padding: 10, borderTopWidth: 1 },
+  input: { flex: 1, borderWidth: 1, padding: 10, borderRadius: 5, color: "black" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorText: { fontSize: 16, fontWeight: "bold" },
+  backButton:{
+    top:16
+  }
+});
+
+
+
+//UploadedNotesContext.jsx
+import React, { createContext, useState } from 'react';
+
+export const UploadedNotesContext = createContext();
+
+export const UploadedNotesProvider = ({ children }) => {
+  const [uploadedNotes, setUploadedNotes] = useState([]);
+
+  // Function to add a note
+  const addNote = (note) => {
+    setUploadedNotes(prevNotes => [...prevNotes, note]);
+  };
+
+  return (
+    <UploadedNotesContext.Provider value={{ uploadedNotes, addNote }}>
+      {children}
+    </UploadedNotesContext.Provider>
+  );
+};
+
+
+
+//src/firebase/firebaseConfig.jsx
+  import { initializeApp } from 'firebase/app';
+  import { getAuth } from 'firebase/auth';
+  import { getStorage } from 'firebase/storage';
+  import { getFirestore } from 'firebase/firestore';
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  export const auth = getAuth(app);
+  export const storage = getStorage(app);
+  export const db = getFirestore(app);  
